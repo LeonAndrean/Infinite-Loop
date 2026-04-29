@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.shape.*?>
+<?import javafx.geometry.*?>
+
+<VBox
+    xmlns="http://javafx.com/javafx/21"
+    xmlns:fx="http://javafx.com/fxml/1"
+    fx:controller="com.gereja.chatbot.controller.JadwalController"
+    prefWidth="640" prefHeight="580"
+    style="-fx-background-color: #F5F0EB;">
+
+    <!-- ── Header ── -->
+    <HBox alignment="CENTER_LEFT" spacing="14"
+          style="-fx-background-color: #1A3A2A; -fx-padding: 18 24;">
+        <StackPane minWidth="40" minHeight="40">
+            <Circle radius="20" style="-fx-fill: #D4A843;"/>
+            <Label text="📅" style="-fx-font-size: 18px;"/>
+        </StackPane>
+        <VBox spacing="3" HBox.hgrow="ALWAYS">
+            <Label text="Jadwal &amp; Pendaftaran"
+                   style="-fx-text-fill: #F5F0EB; -fx-font-size: 17px; -fx-font-weight: bold; -fx-font-family: 'Georgia';"/>
+            <Label text="Kelola jadwal dan daftar layanan gerejawi Anda"
+                   style="-fx-text-fill: #8AB99A; -fx-font-size: 11px;"/>
+        </VBox>
+        <Button fx:id="btnClose" text="✕"
+                style="-fx-background-color: rgba(255,255,255,0.12); -fx-text-fill: #F5F0EB; -fx-font-size: 14px; -fx-background-radius: 20; -fx-cursor: hand; -fx-padding: 4 10; -fx-border-width: 0;"/>
+    </HBox>
+
+    <!-- ── Tab Bar ── -->
+    <HBox style="-fx-background-color: #FFFFFF; -fx-border-color: #E2DAD0; -fx-border-width: 0 0 1 0;">
+        <Button fx:id="tabJadwal" text="Jadwal Mendatang"
+                style="-fx-background-color: transparent; -fx-text-fill: #1A3A2A; -fx-font-size: 12px; -fx-font-weight: bold; -fx-padding: 13 20; -fx-border-color: transparent transparent #1A3A2A transparent; -fx-border-width: 0 0 3 0; -fx-cursor: hand;"/>
+        <Button fx:id="tabDaftar" text="Daftar Layanan"
+                style="-fx-background-color: transparent; -fx-text-fill: #7A8A7E; -fx-font-size: 12px; -fx-padding: 13 20; -fx-border-width: 0; -fx-cursor: hand;"/>
+        <Button fx:id="tabRiwayat" text="Riwayat"
+                style="-fx-background-color: transparent; -fx-text-fill: #7A8A7E; -fx-font-size: 12px; -fx-padding: 13 20; -fx-border-width: 0; -fx-cursor: hand;"/>
+    </HBox>
+
+    <!-- ── Dynamic Content Area ── -->
+    <ScrollPane fx:id="contentScrollPane"
+                fitToWidth="true" VBox.vgrow="ALWAYS"
+                style="-fx-background-color: transparent; -fx-background: #F5F0EB; -fx-border-width: 0;">
+        <!-- Content injected dynamically by JadwalController -->
+    </ScrollPane>
+
+</VBox>
