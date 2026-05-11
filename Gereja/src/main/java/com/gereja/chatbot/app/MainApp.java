@@ -1,47 +1,42 @@
 package com.gereja.chatbot.app;
 
+import com.gereja.chatbot.database.DatabaseHelper;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
-import javafx.scene.image.Image;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 
 import java.io.IOException;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.Objects;
 
-/**
- * ╔══════════════════════════════════════════════════════════╗
- * ║        GerejaCare – Church Information Chatbot           ║
- * ║        Main Application Entry Point                      ║
- * ╚══════════════════════════════════════════════════════════╝
- */
+
 public class MainApp extends Application {
 
     @Override
-    public void start(Stage primaryStage) throws IOException {
+    public void start(Stage stage) throws IOException {
+        // Inisialisasi database (buat tabel + isi data awal kalo kosong)
+        DatabaseHelper.getConnection();
+
         FXMLLoader loader = new FXMLLoader(
-            getClass().getResource("/com/gereja/chatbot/fxml/ChurchChatbot.fxml")
-        );
+                getClass().getResource("/com/gereja/chatbot/fxml/ChurchChatbot.fxml"));
 
         Scene scene = new Scene(loader.load(), 1100, 720);
-
-        // Load CSS
         scene.getStylesheets().add(
-            Objects.requireNonNull(
-                getClass().getResource("/com/gereja/chatbot/css/styles.css")
-            ).toExternalForm()
+                Objects.requireNonNull(
+                        getClass().getResource("/com/gereja/chatbot/css/styles.css")
+                ).toExternalForm()
         );
 
-        primaryStage.setTitle("GerejaCare – Layanan Informasi Jemaat");
-        primaryStage.setScene(scene);
-        primaryStage.setMinWidth(900);
-        primaryStage.setMinHeight(600);
-        primaryStage.show();
-
-        // Center on screen
-        primaryStage.centerOnScreen();
+        stage.setTitle("Faith Buddy – Layanan Informasi Jemaat");
+        stage.setScene(scene);
+        stage.setMinWidth(900);
+        stage.setMinHeight(600);
+        stage.centerOnScreen();
+        stage.show();
     }
+
 
     public static void main(String[] args) {
         launch(args);

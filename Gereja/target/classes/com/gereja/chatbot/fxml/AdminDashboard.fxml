@@ -1,0 +1,426 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.control.cell.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane prefHeight="780" prefWidth="1240"
+            style="-fx-background-color: #F2EEE9;"
+            xmlns="http://javafx.com/javafx/17.0.12"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.gereja.chatbot.controller.AdminDashboardController">
+
+    <!-- TOP BAR -->
+    <top>
+        <HBox alignment="CENTER_LEFT" spacing="16"
+              style="-fx-background-color: #1A3A2A; -fx-padding: 14 24;">
+            <Label text="✝" style="-fx-text-fill: #D4A843; -fx-font-size: 20px;"/>
+            <VBox>
+                <Label text="Faith Buddy – Panel Admin"
+                       style="-fx-text-fill: #D4A843; -fx-font-size: 16px; -fx-font-weight: bold;"/>
+                <Label fx:id="lblAdminName" text="Admin"
+                       style="-fx-text-fill: #7AAA8A; -fx-font-size: 11px;"/>
+            </VBox>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button text="Keluar" onAction="#handleLogout"
+                    style="-fx-background-color: #3A1A1A; -fx-text-fill: #E05A5A;
+                           -fx-background-radius: 3; -fx-padding: 8 16;
+                           -fx-cursor: hand; -fx-font-size: 12px;"/>
+        </HBox>
+    </top>
+
+    <!-- SIDEBAR NAV -->
+    <left>
+        <VBox prefWidth="210" spacing="4"
+              style="-fx-background-color: #142D1F; -fx-padding: 16 10;">
+            <Label text="KELOLA DATA"
+                   style="-fx-text-fill: #5A8A6A; -fx-font-size: 10px;
+                          -fx-font-weight: bold; -fx-padding: 8 6 4 6;"/>
+
+            <Button fx:id="btnNavInfo" text="📋  Info Gereja"
+                    maxWidth="Infinity" onAction="#showTabInfo"
+                    style="-fx-background-color: #D4A843; -fx-text-fill: #122A1E;
+                           -fx-background-radius: 3; -fx-padding: 10 14;
+                           -fx-alignment: CENTER_LEFT; -fx-cursor: hand;
+                           -fx-font-size: 13px; -fx-font-weight: bold;"/>
+
+            <Button fx:id="btnNavPelayanan" text="⛪  Pelayanan"
+                    maxWidth="Infinity" onAction="#showTabPelayanan"
+                    style="-fx-background-color: transparent; -fx-text-fill: #C8DDD0;
+                           -fx-background-radius: 3; -fx-padding: 10 14;
+                           -fx-alignment: CENTER_LEFT; -fx-cursor: hand; -fx-font-size: 13px;"/>
+
+            <Button fx:id="btnNavKataKunci" text="🔑  Kata Kunci Q&amp;A"
+                    maxWidth="Infinity" onAction="#showTabKataKunci"
+                    style="-fx-background-color: transparent; -fx-text-fill: #C8DDD0;
+                           -fx-background-radius: 3; -fx-padding: 10 14;
+                           -fx-alignment: CENTER_LEFT; -fx-cursor: hand; -fx-font-size: 13px;"/>
+
+            <Button fx:id="btnNavAyat" text="📖  Ayat Harian"
+                    maxWidth="Infinity" onAction="#showTabAyat"
+                    style="-fx-background-color: transparent; -fx-text-fill: #C8DDD0;
+                           -fx-background-radius: 3; -fx-padding: 10 14;
+                           -fx-alignment: CENTER_LEFT; -fx-cursor: hand; -fx-font-size: 13px;"/>
+
+            <Button fx:id="btnNavAdmin" text="👤  Kelola Admin"
+                    maxWidth="Infinity" onAction="#showTabAdmin"
+                    style="-fx-background-color: transparent; -fx-text-fill: #C8DDD0;
+                           -fx-background-radius: 3; -fx-padding: 10 14;
+                           -fx-alignment: CENTER_LEFT; -fx-cursor: hand; -fx-font-size: 13px;"/>
+
+            <Separator style="-fx-background-color: #2A5A3A;" VBox.vgrow="NEVER"/>
+
+            <Label text="STATISTIK"
+                   style="-fx-text-fill: #5A8A6A; -fx-font-size: 10px;
+                          -fx-font-weight: bold; -fx-padding: 8 6 4 6;"/>
+            <VBox spacing="6" style="-fx-padding: 0 6;">
+                <HBox alignment="CENTER_LEFT" spacing="8"
+                      style="-fx-background-color: #1A3A2A; -fx-background-radius: 3; -fx-padding: 10 12;">
+                    <Label text="💬" style="-fx-font-size: 13px;"/>
+                    <VBox>
+                        <Label fx:id="lblTotalChat" text="0"
+                               style="-fx-text-fill: #D4A843; -fx-font-weight: bold; -fx-font-size: 15px;"/>
+                        <Label text="Total Chat" style="-fx-text-fill: #7AAA8A; -fx-font-size: 10px;"/>
+                    </VBox>
+                </HBox>
+                <HBox alignment="CENTER_LEFT" spacing="8"
+                      style="-fx-background-color: #1A3A2A; -fx-background-radius: 3; -fx-padding: 10 12;">
+                    <Label text="🔑" style="-fx-font-size: 13px;"/>
+                    <VBox>
+                        <Label fx:id="lblTotalKataKunci" text="0"
+                               style="-fx-text-fill: #D4A843; -fx-font-weight: bold; -fx-font-size: 15px;"/>
+                        <Label text="Kata Kunci" style="-fx-text-fill: #7AAA8A; -fx-font-size: 10px;"/>
+                    </VBox>
+                </HBox>
+                <HBox alignment="CENTER_LEFT" spacing="8"
+                      style="-fx-background-color: #1A3A2A; -fx-background-radius: 3; -fx-padding: 10 12;">
+                    <Label text="📖" style="-fx-font-size: 13px;"/>
+                    <VBox>
+                        <Label fx:id="lblTotalAyat" text="0"
+                               style="-fx-text-fill: #D4A843; -fx-font-weight: bold; -fx-font-size: 15px;"/>
+                        <Label text="Ayat Harian" style="-fx-text-fill: #7AAA8A; -fx-font-size: 10px;"/>
+                    </VBox>
+                </HBox>
+            </VBox>
+        </VBox>
+    </left>
+
+    <!-- MAIN CONTENT -->
+    <center>
+        <StackPane fx:id="contentArea" style="-fx-padding: 20;">
+
+            <!-- TAB: INFO GEREJA -->
+            <VBox fx:id="tabInfo" spacing="16">
+                <Label text="📋 Kelola Informasi Gereja"
+                       style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #1A3A2A;"/>
+                <HBox spacing="12" alignment="CENTER_LEFT">
+                    <TextField fx:id="txtInfoKunci" promptText="Kunci (contoh: telepon)" prefWidth="200"
+                               style="-fx-background-color: white; -fx-padding: 9 12;"/>
+                    <TextField fx:id="txtInfoNilai" promptText="Nilai / Isi informasi" prefWidth="360"
+                               style="-fx-background-color: white; -fx-padding: 9 12;"/>
+                    <Button text="➕ Simpan" onAction="#simpanInfo"
+                            style="-fx-background-color: #1A3A2A; -fx-text-fill: white;
+                                   -fx-background-radius: 3; -fx-padding: 9 18; -fx-cursor: hand;"/>
+                    <Button text="🔄 Reset" onAction="#resetFormInfo"
+                            style="-fx-background-color: #E0E0E0; -fx-text-fill: #555;
+                                   -fx-background-radius: 3; -fx-padding: 9 14; -fx-cursor: hand;"/>
+                </HBox>
+                <TableView fx:id="tblInfo" VBox.vgrow="ALWAYS"
+                           style="-fx-background-color: white; -fx-background-radius: 3;
+                                  -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 8, 0, 0, 2);">
+                    <columns>
+                        <TableColumn fx:id="colInfoId" text="ID" prefWidth="60"/>
+                        <TableColumn fx:id="colInfoKunci" text="Kunci" prefWidth="200"/>
+                        <TableColumn fx:id="colInfoNilai" text="Nilai" prefWidth="440"/>
+                        <TableColumn fx:id="colInfoAksi" text="Aksi" prefWidth="160"/>
+                    </columns>
+                    <placeholder><Label text="Belum ada data informasi gereja."/></placeholder>
+                </TableView>
+            </VBox>
+
+            <!-- TAB: PELAYANAN -->
+            <VBox fx:id="tabPelayanan" spacing="16" visible="false" managed="false">
+                <Label text="⛪ Kelola Informasi Pelayanan Gerejawi"
+                       style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #1A3A2A;"/>
+                <HBox spacing="10">
+                    <VBox spacing="12" prefWidth="360"
+                          style="-fx-background-color: white; -fx-background-radius: 3;
+                                 -fx-padding: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 8, 0, 0, 2);">
+                        <Label text="Form Pelayanan"
+                               style="-fx-font-weight: bold; -fx-text-fill: #1A3A2A; -fx-font-size: 14px;"/>
+                        <VBox spacing="4">
+                            <Label text="Jenis Pelayanan" style="-fx-text-fill: #555; -fx-font-size: 11px;"/>
+                            <ComboBox fx:id="cmbKategori" maxWidth="Infinity"
+                                      style="-fx-background-color: #F5F5F5;"/>
+                        </VBox>
+                        <VBox spacing="4">
+                            <Label text="Nama Item / Dokumen" style="-fx-text-fill: #555; -fx-font-size: 11px;"/>
+                            <TextField fx:id="txtPelNamaItem" promptText="Contoh: Fotokopi KTP"
+                                       style="-fx-background-color: #F5F5F5; -fx-padding: 9 12;"/>
+                        </VBox>
+                        <VBox spacing="4">
+                            <Label text="Tipe Data" style="-fx-text-fill: #555; -fx-font-size: 11px;"/>
+                            <ComboBox fx:id="cmbTipePelayanan" maxWidth="Infinity"
+                                      style="-fx-background-color: #F5F5F5;"/>
+                        </VBox>
+                        <VBox spacing="4">
+                            <Label text="Biaya" style="-fx-text-fill: #555; -fx-font-size: 11px;"/>
+                            <TextField fx:id="txtPelBiaya" promptText="Gratis / Rp 500.000"
+                                       style="-fx-background-color: #F5F5F5; -fx-padding: 9 12;"/>
+                        </VBox>
+                        <VBox spacing="4">
+                            <Label text="Keterangan" style="-fx-text-fill: #555; -fx-font-size: 11px;"/>
+                            <TextArea fx:id="txtPelKeterangan" promptText="Keterangan tambahan..."
+                                      prefRowCount="3" style="-fx-background-color: #F5F5F5; -fx-padding: 9 12;"/>
+                        </VBox>
+                        <HBox spacing="8">
+                            <Button text="💾 Simpan" onAction="#simpanPelayanan"
+                                    maxWidth="Infinity" HBox.hgrow="ALWAYS"
+                                    style="-fx-background-color: #1A3A2A; -fx-text-fill: white;
+                                           -fx-background-radius: 3; -fx-padding: 10; -fx-cursor: hand;"/>
+                            <Button text="🔄" onAction="#resetFormPelayanan"
+                                    style="-fx-background-color: #E0E0E0; -fx-text-fill: #555;
+                                           -fx-background-radius: 3; -fx-padding: 10 14; -fx-cursor: hand;"/>
+                        </HBox>
+                    </VBox>
+                    <VBox spacing="8" HBox.hgrow="ALWAYS">
+                        <ComboBox fx:id="cmbFilterKategori" promptText="Filter Kategori"
+                                  onAction="#filterPelayanan" style="-fx-background-color: white;"/>
+                        <TableView fx:id="tblPelayanan" VBox.vgrow="ALWAYS"
+                                   style="-fx-background-color: white; -fx-background-radius: 3;
+                                          -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 8, 0, 0, 2);">
+                            <columns>
+                                <TableColumn fx:id="colPelId" text="ID" prefWidth="50"/>
+                                <TableColumn fx:id="colPelKategori" text="Kategori" prefWidth="110"/>
+                                <TableColumn fx:id="colPelTipe" text="Tipe" prefWidth="90"/>
+                                <TableColumn fx:id="colPelNama" text="Nama Item" prefWidth="220"/>
+                                <TableColumn fx:id="colPelBiaya" text="Biaya" prefWidth="110"/>
+                                <TableColumn fx:id="colPelAksi" text="Aksi" prefWidth="120"/>
+                            </columns>
+                            <placeholder><Label text="Belum ada data pelayanan."/></placeholder>
+                        </TableView>
+                    </VBox>
+                </HBox>
+            </VBox>
+
+            <!-- TAB: KATA KUNCI Q&A -->
+            <VBox fx:id="tabKataKunci" spacing="16" visible="false" managed="false">
+                <HBox alignment="CENTER_LEFT" spacing="12">
+                    <VBox HBox.hgrow="ALWAYS">
+                        <Label text="🔑 Kata Kunci Cerdas Q&amp;A"
+                               style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #1A3A2A;"/>
+                        <Label text="Kata kunci yang digunakan chatbot untuk memahami dan menjawab pertanyaan jemaat."
+                               style="-fx-text-fill: #667; -fx-font-size: 11px;"/>
+                    </VBox>
+                    <Button text="🤖 Scan Riwayat Chat" onAction="#scanRiwayatChat"
+                            style="-fx-background-color: #2A6A4A; -fx-text-fill: white;
+                                   -fx-background-radius: 3; -fx-padding: 10 18; -fx-cursor: hand;"/>
+                </HBox>
+                <HBox spacing="10">
+                    <VBox spacing="12" prefWidth="380"
+                          style="-fx-background-color: white; -fx-background-radius: 3;
+                                 -fx-padding: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 8, 0, 0, 2);">
+                        <Label text="Tambah / Edit Kata Kunci"
+                               style="-fx-font-weight: bold; -fx-text-fill: #1A3A2A; -fx-font-size: 14px;"/>
+                        <VBox spacing="4">
+                            <Label text="Kata Kunci Utama" style="-fx-text-fill: #555; -fx-font-size: 11px;"/>
+                            <TextField fx:id="txtKK" promptText="contoh: jam ibadah minggu"
+                                       style="-fx-background-color: #F5F5F5; -fx-padding: 9 12;"/>
+                        </VBox>
+                        <VBox spacing="4">
+                            <Label text="Pertanyaan Asli" style="-fx-text-fill: #555; -fx-font-size: 11px;"/>
+                            <TextArea fx:id="txtKKPertanyaan" promptText="Pertanyaan dari user..."
+                                      prefRowCount="2" style="-fx-background-color: #F5F5F5; -fx-padding: 9 12;"/>
+                        </VBox>
+                        <VBox spacing="4">
+                            <Label text="Jawaban / Respons Chatbot" style="-fx-text-fill: #555; -fx-font-size: 11px;"/>
+                            <TextArea fx:id="txtKKJawaban" promptText="Jawaban lengkap..."
+                                      prefRowCount="5" style="-fx-background-color: #F5F5F5; -fx-padding: 9 12;"/>
+                        </VBox>
+                        <VBox spacing="4">
+                            <Label text="Kategori" style="-fx-text-fill: #555; -fx-font-size: 11px;"/>
+                            <ComboBox fx:id="cmbKKKategori" maxWidth="Infinity"
+                                      style="-fx-background-color: #F5F5F5;"/>
+                        </VBox>
+                        <HBox spacing="8">
+                            <Button text="💾 Simpan" onAction="#simpanKataKunci"
+                                    maxWidth="Infinity" HBox.hgrow="ALWAYS"
+                                    style="-fx-background-color: #1A3A2A; -fx-text-fill: white;
+                                           -fx-background-radius: 3; -fx-padding: 10; -fx-cursor: hand;"/>
+                            <Button text="🔄" onAction="#resetFormKataKunci"
+                                    style="-fx-background-color: #E0E0E0; -fx-text-fill: #555;
+                                           -fx-background-radius: 3; -fx-padding: 10 14; -fx-cursor: hand;"/>
+                        </HBox>
+                    </VBox>
+                    <VBox spacing="8" HBox.hgrow="ALWAYS">
+                        <HBox spacing="10" alignment="CENTER_LEFT">
+                            <TextField fx:id="txtCariKK" promptText="🔍 Cari kata kunci..." prefWidth="240"
+                                       style="-fx-background-color: white; -fx-padding: 9 12;"/>
+                            <ComboBox fx:id="cmbFilterKK" promptText="Filter Kategori"
+                                      onAction="#filterKataKunci" style="-fx-background-color: white;"/>
+                        </HBox>
+                        <TableView fx:id="tblKataKunci" VBox.vgrow="ALWAYS"
+                                   style="-fx-background-color: white; -fx-background-radius: 3;
+                                          -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 8, 0, 0, 2);">
+                            <columns>
+                                <TableColumn fx:id="colKKId" text="ID" prefWidth="50"/>
+                                <TableColumn fx:id="colKKKunci" text="Kata Kunci" prefWidth="180"/>
+                                <TableColumn fx:id="colKKKategori" text="Kategori" prefWidth="100"/>
+                                <TableColumn fx:id="colKKPertanyaan" text="Pertanyaan" prefWidth="220"/>
+                                <TableColumn fx:id="colKKHit" text="Hits" prefWidth="60"/>
+                                <TableColumn fx:id="colKKAksi" text="Aksi" prefWidth="120"/>
+                            </columns>
+                            <placeholder><Label text="Belum ada kata kunci tersimpan."/></placeholder>
+                        </TableView>
+                    </VBox>
+                </HBox>
+            </VBox>
+
+            <!-- TAB: AYAT HARIAN -->
+            <VBox fx:id="tabAyat" spacing="16" visible="false" managed="false">
+                <HBox alignment="CENTER_LEFT" spacing="12">
+                    <VBox HBox.hgrow="ALWAYS">
+                        <Label text="📖 Kelola Ayat Harian"
+                               style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #1A3A2A;"/>
+                        <Label text="Ayat dengan tanggal tertentu tampil pada tanggal itu. Ayat tanpa tanggal dirotasi otomatis setiap hari."
+                               style="-fx-text-fill: #667; -fx-font-size: 11px;"/>
+                    </VBox>
+                </HBox>
+
+                <HBox spacing="10">
+                    <!-- Form Ayat -->
+                    <VBox spacing="12" prefWidth="380"
+                          style="-fx-background-color: white; -fx-background-radius: 3;
+                                 -fx-padding: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 8, 0, 0, 2);">
+                        <Label text="Tambah / Edit Ayat"
+                               style="-fx-font-weight: bold; -fx-text-fill: #1A3A2A; -fx-font-size: 14px;"/>
+
+                        <VBox spacing="4">
+                            <Label text="Referensi Alkitab" style="-fx-text-fill: #555; -fx-font-size: 11px;"/>
+                            <TextField fx:id="txtAyatReferensi" promptText="contoh: Yohanes 3:16"
+                                       style="-fx-background-color: #F5F5F5; -fx-padding: 9 12;"/>
+                        </VBox>
+                        <VBox spacing="4">
+                            <Label text="Isi Ayat" style="-fx-text-fill: #555; -fx-font-size: 11px;"/>
+                            <TextArea fx:id="txtAyatIsi" promptText="Teks ayat Alkitab..."
+                                      prefRowCount="4" style="-fx-background-color: #F5F5F5; -fx-padding: 9 12;"/>
+                        </VBox>
+                        <VBox spacing="4">
+                            <Label text="Keterangan / Tema" style="-fx-text-fill: #555; -fx-font-size: 11px;"/>
+                            <TextField fx:id="txtAyatKeterangan" promptText="contoh: Kasih Allah"
+                                       style="-fx-background-color: #F5F5F5; -fx-padding: 9 12;"/>
+                        </VBox>
+                        <VBox spacing="4">
+                            <Label text="Tanggal Khusus (kosongkan = rotasi otomatis)"
+                                   style="-fx-text-fill: #555; -fx-font-size: 11px;"/>
+                            <TextField fx:id="txtAyatTanggal" promptText="YYYY-MM-DD, misal: 2026-12-25"
+                                       style="-fx-background-color: #F5F5F5; -fx-padding: 9 12;"/>
+                        </VBox>
+                        <HBox spacing="8" alignment="CENTER_LEFT">
+                            <Label text="Aktif:" style="-fx-font-size: 12px;"/>
+                            <CheckBox fx:id="chkAyatAktif" selected="true"/>
+                        </HBox>
+                        <Label fx:id="lblAyatFormMsg" text=""
+                               style="-fx-text-fill: #E05A5A; -fx-font-size: 11px;"
+                               visible="false" managed="false"/>
+                        <HBox spacing="8">
+                            <Button text="💾 Simpan Ayat" onAction="#simpanAyat"
+                                    maxWidth="Infinity" HBox.hgrow="ALWAYS"
+                                    style="-fx-background-color: #1A3A2A; -fx-text-fill: white;
+                                           -fx-background-radius: 3; -fx-padding: 10; -fx-cursor: hand;"/>
+                            <Button text="🔄" onAction="#resetFormAyat"
+                                    style="-fx-background-color: #E0E0E0; -fx-text-fill: #555;
+                                           -fx-background-radius: 3; -fx-padding: 10 14; -fx-cursor: hand;"/>
+                        </HBox>
+
+                        <!-- Preview ayat hari ini -->
+                        <Separator/>
+                        <Label text="✦ Preview Ayat Hari Ini"
+                               style="-fx-font-weight: bold; -fx-text-fill: #1A3A2A; -fx-font-size: 12px;"/>
+                        <VBox spacing="4" style="-fx-background-color: #1A3A2A; -fx-padding: 12; -fx-background-radius: 6;">
+                            <Label fx:id="lblPreviewRef" text="—"
+                                   style="-fx-text-fill: #F5D882; -fx-font-weight: bold; -fx-font-size: 12px;"/>
+                            <Label fx:id="lblPreviewAyat" text="—" wrapText="true"
+                                   style="-fx-text-fill: #D4EDD9; -fx-font-style: italic; -fx-font-size: 11px;"/>
+                        </VBox>
+                    </VBox>
+
+                    <!-- Tabel Ayat -->
+                    <TableView fx:id="tblAyat" HBox.hgrow="ALWAYS"
+                               style="-fx-background-color: white; -fx-background-radius: 3;
+                                      -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 8, 0, 0, 2);">
+                        <columns>
+                            <TableColumn fx:id="colAyatId" text="ID" prefWidth="50"/>
+                            <TableColumn fx:id="colAyatTanggal" text="Tanggal" prefWidth="100"/>
+                            <TableColumn fx:id="colAyatReferensi" text="Referensi" prefWidth="140"/>
+                            <TableColumn fx:id="colAyatIsi" text="Isi Ayat" prefWidth="280"/>
+                            <TableColumn fx:id="colAyatKet" text="Tema" prefWidth="130"/>
+                            <TableColumn fx:id="colAyatAktif" text="Aktif" prefWidth="60"/>
+                            <TableColumn fx:id="colAyatAksi" text="Aksi" prefWidth="120"/>
+                        </columns>
+                        <placeholder><Label text="Belum ada ayat harian tersimpan."/></placeholder>
+                    </TableView>
+                </HBox>
+            </VBox>
+
+            <!-- TAB: KELOLA ADMIN -->
+            <VBox fx:id="tabAdmin" spacing="16" visible="false" managed="false">
+                <Label text="👤 Kelola Akun Admin"
+                       style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #1A3A2A;"/>
+                <HBox spacing="16">
+                    <VBox spacing="12" prefWidth="380"
+                          style="-fx-background-color: white; -fx-background-radius: 3;
+                                 -fx-padding: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 8, 0, 0, 2);">
+                        <Label text="Tambah / Ubah Admin"
+                               style="-fx-font-weight: bold; -fx-text-fill: #1A3A2A; -fx-font-size: 14px;"/>
+                        <VBox spacing="4">
+                            <Label text="Username" style="-fx-text-fill: #555; -fx-font-size: 11px;"/>
+                            <TextField fx:id="txtAdminUser"
+                                       style="-fx-background-color: #F5F5F5; -fx-padding: 9 12;"/>
+                        </VBox>
+                        <VBox spacing="4">
+                            <Label text="Password Baru" style="-fx-text-fill: #555; -fx-font-size: 11px;"/>
+                            <PasswordField fx:id="txtAdminPw"
+                                           style="-fx-background-color: #F5F5F5; -fx-padding: 9 12;"/>
+                        </VBox>
+                        <VBox spacing="4">
+                            <Label text="Konfirmasi Password" style="-fx-text-fill: #555; -fx-font-size: 11px;"/>
+                            <PasswordField fx:id="txtAdminPwKonfirm"
+                                           style="-fx-background-color: #F5F5F5; -fx-padding: 9 12;"/>
+                        </VBox>
+                        <VBox spacing="4">
+                            <Label text="Nama Lengkap" style="-fx-text-fill: #555; -fx-font-size: 11px;"/>
+                            <TextField fx:id="txtAdminNama"
+                                       style="-fx-background-color: #F5F5F5; -fx-padding: 9 12;"/>
+                        </VBox>
+                        <Label fx:id="lblAdminFormMsg" text=""
+                               style="-fx-text-fill: #E05A5A; -fx-font-size: 11px;"
+                               visible="false" managed="false"/>
+                        <HBox spacing="8">
+                            <Button text="💾 Simpan Admin" onAction="#simpanAdmin"
+                                    maxWidth="Infinity" HBox.hgrow="ALWAYS"
+                                    style="-fx-background-color: #1A3A2A; -fx-text-fill: white;
+                                           -fx-background-radius: 3; -fx-padding: 10; -fx-cursor: hand;"/>
+                            <Button text="🔄" onAction="#resetFormAdmin"
+                                    style="-fx-background-color: #E0E0E0; -fx-text-fill: #555;
+                                           -fx-background-radius: 3; -fx-padding: 10 14; -fx-cursor: hand;"/>
+                        </HBox>
+                    </VBox>
+                    <TableView fx:id="tblAdmin" HBox.hgrow="ALWAYS"
+                               style="-fx-background-color: white;
+                                      -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 8, 0, 0, 2);">
+                        <columns>
+                            <TableColumn fx:id="colAdminId" text="ID" prefWidth="60"/>
+                            <TableColumn fx:id="colAdminUser" text="Username" prefWidth="160"/>
+                            <TableColumn fx:id="colAdminNama" text="Nama Lengkap" prefWidth="220"/>
+                            <TableColumn fx:id="colAdminAksi" text="Aksi" prefWidth="140"/>
+                        </columns>
+                        <placeholder><Label text="Belum ada akun admin."/></placeholder>
+                    </TableView>
+                </HBox>
+            </VBox>
+
+        </StackPane>
+    </center>
+</BorderPane>

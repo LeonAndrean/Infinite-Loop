@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<StackPane style="-fx-background-color: #1C3D2B;"
+           xmlns="http://javafx.com/javafx/17.0.12"
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="com.gereja.chatbot.controller.AdminLoginController">
+
+    <VBox>
+
+        <!-- HEADER (FULL WIDTH) -->
+        <VBox alignment="CENTER"
+              spacing="8"
+              style="-fx-background-color: #122A1E; -fx-padding: 12;"
+              maxWidth="Infinity">
+
+            <Label style="-fx-text-fill: #f8f8f8; -fx-font-size: 24px; -fx-font-weight: bold;"
+                   text="Faith Buddy" />
+
+            <Label style="-fx-text-fill: #7AAA8A; -fx-font-size: 13px;"
+                   text="Admin Login" />
+        </VBox>
+
+        <!-- FORM AREA (CENTER CARD) -->
+        <StackPane alignment="CENTER" VBox.vgrow="ALWAYS">
+
+            <VBox alignment="CENTER"
+                  spacing="20"
+                  maxWidth="440"
+                  style="-fx-background-color: #1C3D2B; -fx-padding: 36 40 36 40;">
+
+                <!-- USERNAME -->
+                <VBox spacing="8">
+                    <Label style="-fx-text-fill: #9EC4AE; -fx-font-size: 12px; -fx-font-weight: bold;"
+                           text="Username" />
+
+                    <HBox alignment="CENTER_LEFT"
+                          spacing="10"
+                          style="-fx-background-color: #142D1F; -fx-background-radius: 3; -fx-padding: 12 16;">
+
+                        <Label style="-fx-font-size: 14px;" text="👤" />
+
+                        <TextField fx:id="txtUsername"
+                                   promptText="Masukkan username"
+                                   style="-fx-background-color: transparent; -fx-text-fill: #E8F0EB; -fx-prompt-text-fill: #4A7A5A; -fx-font-size: 14px;"
+                                   maxWidth="Infinity" />
+                    </HBox>
+                </VBox>
+
+                <!-- PASSWORD -->
+                <VBox spacing="8">
+                    <Label style="-fx-text-fill: #9EC4AE; -fx-font-size: 12px; -fx-font-weight: bold;"
+                           text="Password" />
+
+                    <HBox alignment="CENTER_LEFT"
+                          spacing="10"
+                          style="-fx-background-color: #142D1F; -fx-background-radius: 3; -fx-padding: 12 16;">
+
+                        <Label style="-fx-font-size: 14px;" text="🔒" />
+
+                        <PasswordField fx:id="txtPassword"
+                                       promptText="Masukkan password"
+                                       style="-fx-background-color: transparent; -fx-text-fill: #E8F0EB; -fx-prompt-text-fill: #4A7A5A; -fx-font-size: 14px;"
+                                       maxWidth="Infinity" />
+                    </HBox>
+                </VBox>
+
+                <!-- ERROR -->
+                <Label fx:id="lblError"
+                       text=""
+                       visible="false"
+                       managed="false"
+                       style="-fx-text-fill: #E05A5A; -fx-font-size: 12px;" />
+
+                <!-- BUTTON -->
+                <Button fx:id="btnLogin"
+                        text="MASUK"
+                        onAction="#handleLogin"
+                        prefHeight="45.0"
+                        maxWidth="Infinity"
+                        style="-fx-background-color: #D4A843; -fx-text-fill: #1C3D2B; -fx-font-weight: bold; -fx-font-size: 14px; -fx-background-radius: 5; -fx-padding: 14 0; -fx-cursor: hand;" />
+
+                <!-- LINK -->
+                <HBox alignment="CENTER">
+                    <Hyperlink fx:id="lnkKembali"
+                               text="Kembali ke Chatbot"
+                               onAction="#handleKembali"
+                               style="-fx-text-fill: #7AAA8A; -fx-font-size: 12px;" />
+                </HBox>
+                <Button text="Lupa Password?" onAction="#handleForgotPassword"
+                        style="-fx-background-color: transparent; -fx-text-fill: #081701;"/>
+
+            </VBox>
+        </StackPane>
+
+    </VBox>
+</StackPane>

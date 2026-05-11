@@ -2,6 +2,7 @@ module com.gereja.chatbot {
     requires javafx.controls;
     requires javafx.fxml;
     requires javafx.graphics;
+    requires java.sql;
 
     opens com.gereja.chatbot.app        to javafx.graphics;
     opens com.gereja.chatbot.controller to javafx.fxml;

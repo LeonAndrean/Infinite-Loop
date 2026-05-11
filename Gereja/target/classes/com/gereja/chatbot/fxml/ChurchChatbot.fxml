@@ -1,403 +1,162 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.layout.*?>
 <?import javafx.scene.control.*?>
-<?import javafx.scene.shape.*?>
+<?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
-<?import javafx.geometry.*?>
 
-<BorderPane
-    xmlns="http://javafx.com/javafx/21"
-    xmlns:fx="http://javafx.com/fxml/1"
-    fx:controller="com.gereja.chatbot.controller.ChatbotController"
-    prefWidth="1100" prefHeight="720"
-    style="-fx-background-color: #F5F0EB;">
+<BorderPane prefHeight="720" prefWidth="1100"
+            style="-fx-background-color: #F2EEE9;"
+            xmlns="http://javafx.com/javafx/17.0.12"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.gereja.chatbot.controller.ChatbotController">
 
-    <!-- ═══════════════════════════════════════════════════════ -->
-    <!--                        SIDEBAR                         -->
-    <!-- ═══════════════════════════════════════════════════════ -->
-    <left>
-        <VBox prefWidth="280"
-              style="-fx-background-color: #1A3A2A; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 12, 0, 4, 0);">
-
-            <!-- ── Header / Branding ── -->
-            <VBox alignment="CENTER" spacing="6"
-                  style="-fx-background-color: #122A1E; -fx-padding: 28 20 22 20;">
-                <StackPane prefWidth="52" prefHeight="52">
-                    <Circle radius="26"
-                            style="-fx-fill: #D4A843; -fx-effect: dropshadow(gaussian, rgba(212,168,67,0.4), 8, 0, 0, 0);"/>
-                    <Rectangle width="6" height="32" arcWidth="3" arcHeight="3" style="-fx-fill: #122A1E;"/>
-                    <Rectangle width="22" height="6" arcWidth="3" arcHeight="3"
-                               style="-fx-fill: #122A1E;" translateY="-6"/>
-                </StackPane>
-                <Label text="GerejaCare"
-                       style="-fx-text-fill: #F5F0EB; -fx-font-size: 20px; -fx-font-weight: bold; -fx-font-family: 'Georgia';"/>
-                <Label text="Layanan Informasi Jemaat"
-                       style="-fx-text-fill: #8AB99A; -fx-font-size: 11px; -fx-font-family: 'Georgia';"/>
-            </VBox>
-
-            <!-- ── Navigation Menu ── -->
-            <VBox spacing="4" style="-fx-padding: 18 12 12 12;">
-                <Label text="MENU UTAMA"
-                       style="-fx-text-fill: #5A8A6A; -fx-font-size: 10px; -fx-font-weight: bold; -fx-padding: 0 0 6 8; -fx-font-family: 'Verdana';"/>
-
-                <HBox fx:id="menuBeranda" alignment="CENTER_LEFT" spacing="12"
-                      style="-fx-background-color: #D4A843; -fx-background-radius: 10; -fx-padding: 11 16; -fx-cursor: hand;">
-                    <Label text="🏠" style="-fx-font-size: 16px;"/>
-                    <Label text="Beranda" style="-fx-text-fill: #122A1E; -fx-font-size: 13px; -fx-font-weight: bold;"/>
-                </HBox>
-
-                <HBox fx:id="menuPembaptisan" alignment="CENTER_LEFT" spacing="12"
-                      style="-fx-background-color: transparent; -fx-background-radius: 10; -fx-padding: 11 16; -fx-cursor: hand;">
-                    <Label text="💧" style="-fx-font-size: 16px;"/>
-                    <Label text="Pembaptisan" style="-fx-text-fill: #C8DDD0; -fx-font-size: 13px;"/>
-                </HBox>
-
-                <HBox fx:id="menuPernikahan" alignment="CENTER_LEFT" spacing="12"
-                      style="-fx-background-color: transparent; -fx-background-radius: 10; -fx-padding: 11 16; -fx-cursor: hand;">
-                    <Label text="💍" style="-fx-font-size: 16px;"/>
-                    <Label text="Pernikahan Gerejawi" style="-fx-text-fill: #C8DDD0; -fx-font-size: 13px;"/>
-                </HBox>
-
-                <HBox fx:id="menuSidi" alignment="CENTER_LEFT" spacing="12"
-                      style="-fx-background-color: transparent; -fx-background-radius: 10; -fx-padding: 11 16; -fx-cursor: hand;">
-                    <Label text="📖" style="-fx-font-size: 16px;"/>
-                    <Label text="SIDI / Peneguhan" style="-fx-text-fill: #C8DDD0; -fx-font-size: 13px;"/>
-                </HBox>
-
-                <HBox fx:id="menuKonseling" alignment="CENTER_LEFT" spacing="12"
-                      style="-fx-background-color: transparent; -fx-background-radius: 10; -fx-padding: 11 16; -fx-cursor: hand;">
-                    <Label text="🤝" style="-fx-font-size: 16px;"/>
-                    <Label text="Konseling Pendeta" style="-fx-text-fill: #C8DDD0; -fx-font-size: 13px;"/>
-                </HBox>
-
-                <HBox fx:id="menuJadwal" alignment="CENTER_LEFT" spacing="12"
-                      style="-fx-background-color: transparent; -fx-background-radius: 10; -fx-padding: 11 16; -fx-cursor: hand;">
-                    <Label text="📅" style="-fx-font-size: 16px;"/>
-                    <Label text="Jadwal &amp; Pendaftaran" style="-fx-text-fill: #C8DDD0; -fx-font-size: 13px;"/>
-                </HBox>
-
-                <Separator style="-fx-padding: 6 0;"/>
-
-                <Label text="LAINNYA"
-                       style="-fx-text-fill: #5A8A6A; -fx-font-size: 10px; -fx-font-weight: bold; -fx-padding: 6 0 6 8; -fx-font-family: 'Verdana';"/>
-
-                <HBox fx:id="menuNotifikasi" alignment="CENTER_LEFT" spacing="12"
-                      style="-fx-background-color: transparent; -fx-background-radius: 10; -fx-padding: 11 16; -fx-cursor: hand;">
-                    <StackPane>
-                        <Label text="🔔" style="-fx-font-size: 16px;"/>
-                        <Label text="3"
-                               style="-fx-background-color: #E05252; -fx-text-fill: white; -fx-font-size: 8px; -fx-font-weight: bold; -fx-background-radius: 10; -fx-padding: 1 4;"
-                               translateX="8" translateY="-8"/>
-                    </StackPane>
-                    <Label text="Notifikasi" style="-fx-text-fill: #C8DDD0; -fx-font-size: 13px;"/>
-                </HBox>
-
-                <HBox fx:id="menuRiwayat" alignment="CENTER_LEFT" spacing="12"
-                      style="-fx-background-color: transparent; -fx-background-radius: 10; -fx-padding: 11 16; -fx-cursor: hand;">
-                    <Label text="🕐" style="-fx-font-size: 16px;"/>
-                    <Label text="Riwayat Konsultasi" style="-fx-text-fill: #C8DDD0; -fx-font-size: 13px;"/>
-                </HBox>
-            </VBox>
-
-            <Region VBox.vgrow="ALWAYS"/>
-
-            <!-- ── Status Online ── -->
-            <VBox style="-fx-background-color: #122A1E; -fx-padding: 14 20;">
-                <HBox alignment="CENTER_LEFT" spacing="10">
-                    <Circle radius="5"
-                            style="-fx-fill: #4CAF50; -fx-effect: dropshadow(gaussian, #4CAF50, 6, 0.5, 0, 0);"/>
-                    <VBox spacing="2">
-                        <Label text="Chatbot Aktif" style="-fx-text-fill: #F5F0EB; -fx-font-size: 12px; -fx-font-weight: bold;"/>
-                        <Label text="Siap melayani Anda" style="-fx-text-fill: #5A8A6A; -fx-font-size: 10px;"/>
-                    </VBox>
-                </HBox>
-            </VBox>
-
-        </VBox>
-    </left>
-
-    <!-- ═══════════════════════════════════════════════════════ -->
-    <!--                      MAIN CONTENT                      -->
-    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- ═══════════════ MAIN CONTENT ═══════════════ -->
     <center>
-        <VBox style="-fx-background-color: #F5F0EB;">
+        <VBox style="-fx-background-color: #F2EEE9;">
 
             <!-- ── Top Bar ── -->
-            <HBox alignment="CENTER_LEFT" spacing="16"
-                  style="-fx-background-color: #FFFFFF; -fx-padding: 16 24; -fx-border-color: #E2DAD0; -fx-border-width: 0 0 1 0;">
-                <VBox spacing="2" HBox.hgrow="ALWAYS">
-                    <Label text="Selamat Datang di GerejaCare 👋"
-                           style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #1A3A2A; -fx-font-family: 'Georgia';"/>
-                    <Label text="Kami hadir untuk membantu informasi pelayanan gerejawi Anda"
-                           style="-fx-font-size: 12px; -fx-text-fill: #7A8A7E;"/>
-                </VBox>
+            <HBox fx:id="menuBeranda" alignment="CENTER_LEFT" spacing="12"
+                  style="-fx-background-color: white; -fx-padding: 14 20;
+                         -fx-border-color: #DDD6CC; -fx-border-width: 0 0 1 0;">
+                <GridPane prefHeight="50.0" HBox.hgrow="ALWAYS">
+                    <columnConstraints>
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="38.0"/>
+                        <ColumnConstraints hgrow="ALWAYS" minWidth="10.0"/>
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" prefWidth="110.0"/>
+                    </columnConstraints>
+                    <rowConstraints>
+                        <RowConstraints maxHeight="50.0" minHeight="5.0" prefHeight="10.0" vgrow="SOMETIMES"/>
+                        <RowConstraints maxHeight="50.0" minHeight="0.0" prefHeight="26.0" vgrow="SOMETIMES"/>
+                        <RowConstraints maxHeight="31.0" minHeight="0.0" prefHeight="16.0" vgrow="SOMETIMES"/>
+                    </rowConstraints>
+                    <children>
+                        <!-- Logo/Icon -->
+                        <Label text="✝"
+                               style="-fx-font-size: 22px; -fx-text-fill: #D4A843;"
+                               GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+                        <!-- Nama sistem -->
+                        <Label text="Faith Buddy"
+                               style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #1A3A2A; -fx-padding: 0 0 0 8;"
+                               GridPane.columnIndex="1" GridPane.rowIndex="1">
+                            <font><Font name="System Bold" size="20.0"/></font>
+                        </Label>
+                        <!-- Subtitle -->
+                        <Label text="Asisten Informasi Gereja"
+                               style="-fx-text-fill: #7A8A7A; -fx-font-size: 11px; -fx-padding: 0 0 0 8;"
+                               GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+                        <!-- Tombol Admin -->
+                        <Button mnemonicParsing="false" onAction="#handleAdminLogin"
+                                style="-fx-background-color: #1A3A2A; -fx-text-fill: #D4A843;
+                                       -fx-background-radius: 8; -fx-padding: 9 14;
+                                       -fx-cursor: hand; -fx-font-size: 12px;
+                                       -fx-border-color: #5A3A10; -fx-border-radius: 8; -fx-border-width: 1;"
+                                text="🔐 Admin"
+                                GridPane.columnIndex="2" GridPane.rowIndex="1"/>
+                    </children>
+                </GridPane>
+            </HBox>
 
-                <HBox alignment="CENTER_LEFT" spacing="8"
-                      style="-fx-background-color: #F5F0EB; -fx-background-radius: 20; -fx-padding: 8 16; -fx-border-color: #D4C9BC; -fx-border-radius: 20; -fx-border-width: 1;">
-                    <Label text="🔍" style="-fx-font-size: 13px;"/>
-                    <TextField fx:id="searchField"
-                               promptText="Cari informasi..."
-                               style="-fx-background-color: transparent; -fx-border-width: 0; -fx-font-size: 12px; -fx-text-fill: #1A3A2A; -fx-prompt-text-fill: #A0937E;"
-                               prefWidth="160"/>
+            <!-- ── Ayat Harian Banner ── -->
+            <VBox fx:id="ayatHarianBox"
+                  style="-fx-background-color: #1A3A2A; -fx-padding: 12 20 10 20;
+                         -fx-border-color: #D4A843; -fx-border-width: 0 0 2 0;">
+                <HBox alignment="CENTER_LEFT" spacing="10">
+                    <Label text="✦"
+                           style="-fx-text-fill: #D4A843; -fx-font-size: 14px;"/>
+                    <Label text="FIRMAN TUHAN HARI INI"
+                           style="-fx-text-fill: #D4A843; -fx-font-size: 10px;
+                                  -fx-font-weight: bold; -fx-letter-spacing: 2;"/>
+                    <Label text="✦"
+                           style="-fx-text-fill: #D4A843; -fx-font-size: 14px;"/>
+                </HBox>
+                <Label fx:id="lblAyatReferensi"
+                       text=""
+                       style="-fx-text-fill: #F5D882; -fx-font-size: 12px;
+                              -fx-font-weight: bold; -fx-padding: 4 0 0 0;"/>
+                <Label fx:id="lblAyatIsi"
+                       text=""
+                       wrapText="true"
+                       style="-fx-text-fill: #D4EDD9; -fx-font-size: 12px;
+                              -fx-font-style: italic; -fx-padding: 2 0 0 0;"
+                       maxWidth="Infinity"/>
+                <Label fx:id="lblAyatKeterangan"
+                       text=""
+                       style="-fx-text-fill: #7AAA8A; -fx-font-size: 10px; -fx-padding: 2 0 0 0;"/>
+            </VBox>
+
+            <!-- ── Chat Area ── -->
+            <ScrollPane fx:id="chatScrollPane"
+                        style="-fx-background-color: transparent; -fx-background: transparent;"
+                        VBox.vgrow="ALWAYS">
+                <VBox fx:id="chatContainer" spacing="10"
+                      style="-fx-padding: 16 20;"/>
+            </ScrollPane>
+
+            <!-- ── Input Area ── -->
+            <VBox style="-fx-background-color: white; -fx-border-color: #DDD6CC;
+                         -fx-border-width: 1 0 0 0; -fx-padding: 10 16;">
+
+                <!-- Quick Reply Chips -->
+                <HBox fx:id="quickReplyChips" spacing="6" style="-fx-padding: 0 0 8 0;">
+                    <Button text="💧 Baptis"
+                            onAction="#handleMenuPembaptisan"
+                            style="-fx-background-color: #EAF3EA; -fx-text-fill: #1A3A2A;
+                                   -fx-background-radius: 14; -fx-border-color: #C8DDD0;
+                                   -fx-border-radius: 14; -fx-border-width: 1;
+                                   -fx-padding: 5 12; -fx-cursor: hand; -fx-font-size: 11px;"/>
+                    <Button text="💍 Pernikahan"
+                            onAction="#handleMenuPernikahan"
+                            style="-fx-background-color: #EAF3EA; -fx-text-fill: #1A3A2A;
+                                   -fx-background-radius: 14; -fx-border-color: #C8DDD0;
+                                   -fx-border-radius: 14; -fx-border-width: 1;
+                                   -fx-padding: 5 12; -fx-cursor: hand; -fx-font-size: 11px;"/>
+                    <Button text="📖 SIDI"
+                            onAction="#handleMenuSidi"
+                            style="-fx-background-color: #EAF3EA; -fx-text-fill: #1A3A2A;
+                                   -fx-background-radius: 14; -fx-border-color: #C8DDD0;
+                                   -fx-border-radius: 14; -fx-border-width: 1;
+                                   -fx-padding: 5 12; -fx-cursor: hand; -fx-font-size: 11px;"/>
+                    <Button text="🤝 Konseling"
+                            onAction="#handleMenuKonseling"
+                            style="-fx-background-color: #EAF3EA; -fx-text-fill: #1A3A2A;
+                                   -fx-background-radius: 14; -fx-border-color: #C8DDD0;
+                                   -fx-border-radius: 14; -fx-border-width: 1;
+                                   -fx-padding: 5 12; -fx-cursor: hand; -fx-font-size: 11px;"/>
+                    <Button text="📅 Jadwal"
+                            onAction="#handleMenuJadwal"
+                            style="-fx-background-color: #EAF3EA; -fx-text-fill: #1A3A2A;
+                                   -fx-background-radius: 14; -fx-border-color: #C8DDD0;
+                                   -fx-border-radius: 14; -fx-border-width: 1;
+                                   -fx-padding: 5 12; -fx-cursor: hand; -fx-font-size: 11px;"/>
+                    <Button text="📞 Kontak"
+                            onAction="#handleMenuKontak"
+                            style="-fx-background-color: #EAF3EA; -fx-text-fill: #1A3A2A;
+                                   -fx-background-radius: 14; -fx-border-color: #C8DDD0;
+                                   -fx-border-radius: 14; -fx-border-width: 1;
+                                   -fx-padding: 5 12; -fx-cursor: hand; -fx-font-size: 11px;"/>
                 </HBox>
 
-                <StackPane>
-                    <Circle radius="20" style="-fx-fill: #2D5A3D;"/>
-                    <Label text="J" style="-fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold;"/>
-                </StackPane>
-            </HBox>
-
-            <!-- ── Chat + Right Panel ── -->
-            <HBox VBox.vgrow="ALWAYS" spacing="0">
-
-                <!-- ── Chat Area ── -->
-                <VBox HBox.hgrow="ALWAYS" spacing="0">
-
-                    <!-- Chat Messages -->
-                    <ScrollPane fx:id="chatScrollPane"
-                                fitToWidth="true" VBox.vgrow="ALWAYS"
-                                style="-fx-background-color: transparent; -fx-background: transparent; -fx-border-width: 0;">
-
-                        <VBox fx:id="chatContainer" spacing="16"
-                              style="-fx-padding: 24 28 16 28; -fx-background-color: #F5F0EB;">
-
-                            <!-- ── Welcome Bot Message ── -->
-                            <HBox alignment="TOP_LEFT" spacing="12">
-                                <StackPane minWidth="40" minHeight="40">
-                                    <Circle radius="20" style="-fx-fill: #1A3A2A;"/>
-                                    <Label text="✝" style="-fx-text-fill: #D4A843; -fx-font-size: 16px;"/>
-                                </StackPane>
-                                <VBox spacing="6" maxWidth="500">
-                                    <Label text="GerejaCare Bot  •  Sekarang"
-                                           style="-fx-font-size: 10px; -fx-text-fill: #9A8A7A;"/>
-                                    <VBox style="-fx-background-color: #FFFFFF; -fx-background-radius: 4 18 18 18; -fx-padding: 14 18; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.07), 8, 0, 2, 2);">
-                                        <Label wrapText="true"
-                                               text="Shalom! 🙏 Selamat datang di layanan informasi GerejaCare."
-                                               style="-fx-font-size: 13px; -fx-text-fill: #1A3A2A; -fx-font-weight: bold;"/>
-                                        <Label wrapText="true"
-                                               text="Saya siap membantu Anda mendapatkan informasi tentang pelayanan gerejawi. Silakan pilih layanan yang Anda butuhkan dari menu di bawah ini:"
-                                               style="-fx-font-size: 13px; -fx-text-fill: #3D5045; -fx-padding: 6 0 0 0;"/>
-                                    </VBox>
-
-                                    <!-- Quick Reply Buttons -->
-                                    <FlowPane hgap="8" vgap="8" style="-fx-padding: 4 0 0 0;">
-                                        <Button fx:id="btnPembaptisan" text="💧 Pembaptisan"
-                                                style="-fx-background-color: #FFFFFF; -fx-text-fill: #1A3A2A; -fx-font-size: 11px; -fx-background-radius: 16; -fx-border-color: #C8DDD0; -fx-border-radius: 16; -fx-border-width: 1.5; -fx-padding: 6 14; -fx-cursor: hand;"/>
-                                        <Button fx:id="btnPernikahan" text="💍 Pernikahan"
-                                                style="-fx-background-color: #FFFFFF; -fx-text-fill: #1A3A2A; -fx-font-size: 11px; -fx-background-radius: 16; -fx-border-color: #C8DDD0; -fx-border-radius: 16; -fx-border-width: 1.5; -fx-padding: 6 14; -fx-cursor: hand;"/>
-                                        <Button fx:id="btnSidi" text="📖 SIDI"
-                                                style="-fx-background-color: #FFFFFF; -fx-text-fill: #1A3A2A; -fx-font-size: 11px; -fx-background-radius: 16; -fx-border-color: #C8DDD0; -fx-border-radius: 16; -fx-border-width: 1.5; -fx-padding: 6 14; -fx-cursor: hand;"/>
-                                        <Button fx:id="btnKonseling" text="🤝 Konseling"
-                                                style="-fx-background-color: #FFFFFF; -fx-text-fill: #1A3A2A; -fx-font-size: 11px; -fx-background-radius: 16; -fx-border-color: #C8DDD0; -fx-border-radius: 16; -fx-border-width: 1.5; -fx-padding: 6 14; -fx-cursor: hand;"/>
-                                        <Button fx:id="btnJadwal" text="📅 Jadwal"
-                                                style="-fx-background-color: #FFFFFF; -fx-text-fill: #1A3A2A; -fx-font-size: 11px; -fx-background-radius: 16; -fx-border-color: #C8DDD0; -fx-border-radius: 16; -fx-border-width: 1.5; -fx-padding: 6 14; -fx-cursor: hand;"/>
-                                    </FlowPane>
-                                </VBox>
-                            </HBox>
-
-                        </VBox>
-                    </ScrollPane>
-
-                    <!-- ── Input Area ── -->
-                    <VBox style="-fx-background-color: #FFFFFF; -fx-border-color: #E2DAD0; -fx-border-width: 1 0 0 0; -fx-padding: 16 24;">
-
-                        <!-- Quick Actions Row -->
-                        <HBox spacing="8" style="-fx-padding: 0 0 12 0;">
-                            <Label text="Aksi Cepat:"
-                                   style="-fx-font-size: 11px; -fx-text-fill: #9A8A7A; -fx-padding: 5 0;"/>
-                            <Button text="📋 Persyaratan" onAction="#handleQuickPersyaratan"
-                                    style="-fx-background-color: #F5F0EB; -fx-text-fill: #3D5045; -fx-font-size: 11px; -fx-background-radius: 14; -fx-padding: 5 12; -fx-cursor: hand; -fx-border-color: #DDD5CC; -fx-border-radius: 14; -fx-border-width: 1;"/>
-                            <Button text="📅 Lihat Jadwal" onAction="#handleQuickJadwal"
-                                    style="-fx-background-color: #F5F0EB; -fx-text-fill: #3D5045; -fx-font-size: 11px; -fx-background-radius: 14; -fx-padding: 5 12; -fx-cursor: hand; -fx-border-color: #DDD5CC; -fx-border-radius: 14; -fx-border-width: 1;"/>
-                            <Button text="📞 Kontak" onAction="#handleQuickKontak"
-                                    style="-fx-background-color: #F5F0EB; -fx-text-fill: #3D5045; -fx-font-size: 11px; -fx-background-radius: 14; -fx-padding: 5 12; -fx-cursor: hand; -fx-border-color: #DDD5CC; -fx-border-radius: 14; -fx-border-width: 1;"/>
-                            <Button text="❓ Bantuan" onAction="#handleQuickBantuan"
-                                    style="-fx-background-color: #F5F0EB; -fx-text-fill: #3D5045; -fx-font-size: 11px; -fx-background-radius: 14; -fx-padding: 5 12; -fx-cursor: hand; -fx-border-color: #DDD5CC; -fx-border-radius: 14; -fx-border-width: 1;"/>
-                        </HBox>
-
-                        <!-- Message Input Row -->
-                        <HBox spacing="12" alignment="CENTER">
-                            <HBox HBox.hgrow="ALWAYS" spacing="10" alignment="CENTER_LEFT"
-                                  style="-fx-background-color: #F5F0EB; -fx-background-radius: 24; -fx-padding: 10 16; -fx-border-color: #D4C9BC; -fx-border-radius: 24; -fx-border-width: 1.5;">
-                                <Label text="💬" style="-fx-font-size: 14px;"/>
-                                <TextArea fx:id="messageInput"
-                                          promptText="Ketik pertanyaan Anda di sini..."
-                                          prefRowCount="1" maxHeight="80" wrapText="true"
-                                          HBox.hgrow="ALWAYS"
-                                          style="-fx-background-color: transparent; -fx-border-width: 0; -fx-font-size: 13px; -fx-text-fill: #1A3A2A; -fx-prompt-text-fill: #A09080;"/>
-                            </HBox>
-
-                            <!-- Send Button -->
-                            <Button onAction="#sendMessage"
-                                    style="-fx-background-color: #1A3A2A; -fx-background-radius: 50; -fx-cursor: hand; -fx-effect: dropshadow(gaussian, rgba(26,58,42,0.3), 10, 0, 0, 3);"
-                                    prefWidth="48" prefHeight="48">
-                                <graphic>
-                                    <Label text="➤" style="-fx-text-fill: #D4A843; -fx-font-size: 18px;"/>
-                                </graphic>
-                            </Button>
-                        </HBox>
-                    </VBox>
-
-                </VBox>
-
-                <!-- ═══════════════════════════════════════════ -->
-                <!--              RIGHT PANEL                   -->
-                <!-- ═══════════════════════════════════════════ -->
-                <VBox prefWidth="280"
-                      style="-fx-background-color: #FFFFFF; -fx-border-color: #E2DAD0; -fx-border-width: 0 0 0 1;">
-
-                    <!-- Header -->
-                    <HBox alignment="CENTER_LEFT" spacing="10"
-                          style="-fx-background-color: #1A3A2A; -fx-padding: 16 18;">
-                        <Label text="🔔" style="-fx-font-size: 15px;"/>
-                        <Label text="Notifikasi &amp; Jadwal"
-                               style="-fx-text-fill: #F5F0EB; -fx-font-size: 13px; -fx-font-weight: bold;" HBox.hgrow="ALWAYS"/>
-                        <Label text="3"
-                               style="-fx-background-color: #E05252; -fx-text-fill: white; -fx-font-size: 10px; -fx-font-weight: bold; -fx-background-radius: 10; -fx-padding: 2 7;"/>
+                <!-- Input pesan -->
+                <HBox alignment="CENTER" spacing="10">
+                    <HBox alignment="CENTER"
+                          style="-fx-background-color: #F2EEE9; -fx-background-radius: 20;
+                                 -fx-padding: 6 14; -fx-border-color: #DDD6CC;
+                                 -fx-border-width: 1; -fx-border-radius: 20;"
+                          HBox.hgrow="ALWAYS">
+                        <TextArea fx:id="messageInput"
+                                  prefRowCount="1"
+                                  promptText="Ketik pertanyaan Anda (mis: syarat baptis, jam ibadah)..."
+                                  style="-fx-background-color: transparent; -fx-border-width: 0;
+                                         -fx-font-size: 13px; -fx-text-fill: #2A2A2A;"
+                                  HBox.hgrow="ALWAYS"/>
                     </HBox>
-
-                    <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS"
-                                style="-fx-background-color: transparent; -fx-background: transparent; -fx-border-width: 0;">
-                        <VBox spacing="0">
-
-                            <Label text="MENDATANG"
-                                   style="-fx-text-fill: #9A8A7A; -fx-font-size: 10px; -fx-font-weight: bold; -fx-padding: 14 16 8 16; -fx-font-family: 'Verdana';"/>
-
-                            <!-- Notif Card 1 -->
-                            <VBox style="-fx-background-color: #FFF8EC; -fx-border-color: #F0E8D8 transparent; -fx-border-width: 0 0 1 0; -fx-padding: 12 16;">
-                                <HBox alignment="CENTER_LEFT" spacing="10">
-                                    <StackPane minWidth="36" minHeight="36">
-                                        <Circle radius="18" style="-fx-fill: #D4A843;"/>
-                                        <Label text="💍" style="-fx-font-size: 14px;"/>
-                                    </StackPane>
-                                    <VBox spacing="3" HBox.hgrow="ALWAYS">
-                                        <Label text="Kelas Pra-Nikah"
-                                               style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #1A3A2A;"/>
-                                        <Label text="Sabtu • 09.00 WIB"
-                                               style="-fx-font-size: 10px; -fx-text-fill: #7A6A5A;"/>
-                                        <Label text="Ruang Serbaguna Lt.2"
-                                               style="-fx-font-size: 10px; -fx-text-fill: #7A6A5A;"/>
-                                    </VBox>
-                                    <Label text="●" style="-fx-text-fill: #E07A30; -fx-font-size: 10px;"/>
-                                </HBox>
-                            </VBox>
-
-                            <!-- Notif Card 2 -->
-                            <VBox style="-fx-background-color: #EEF5EE; -fx-border-color: #DFE8DF transparent; -fx-border-width: 0 0 1 0; -fx-padding: 12 16;">
-                                <HBox alignment="CENTER_LEFT" spacing="10">
-                                    <StackPane minWidth="36" minHeight="36">
-                                        <Circle radius="18" style="-fx-fill: #2D5A3D;"/>
-                                        <Label text="📖" style="-fx-font-size: 14px;"/>
-                                    </StackPane>
-                                    <VBox spacing="3" HBox.hgrow="ALWAYS">
-                                        <Label text="Kelas Persiapan SIDI"
-                                               style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #1A3A2A;"/>
-                                        <Label text="Minggu • 11.00 WIB"
-                                               style="-fx-font-size: 10px; -fx-text-fill: #7A6A5A;"/>
-                                        <Label text="Aula Gereja Utama"
-                                               style="-fx-font-size: 10px; -fx-text-fill: #7A6A5A;"/>
-                                    </VBox>
-                                    <Label text="●" style="-fx-text-fill: #E07A30; -fx-font-size: 10px;"/>
-                                </HBox>
-                            </VBox>
-
-                            <!-- Notif Card 3 -->
-                            <VBox style="-fx-background-color: #F0EBF5; -fx-border-color: #E8DFF0 transparent; -fx-border-width: 0 0 1 0; -fx-padding: 12 16;">
-                                <HBox alignment="CENTER_LEFT" spacing="10">
-                                    <StackPane minWidth="36" minHeight="36">
-                                        <Circle radius="18" style="-fx-fill: #6A4A8A;"/>
-                                        <Label text="🤝" style="-fx-font-size: 14px;"/>
-                                    </StackPane>
-                                    <VBox spacing="3" HBox.hgrow="ALWAYS">
-                                        <Label text="Konseling Pdt. Harianto"
-                                               style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #1A3A2A;"/>
-                                        <Label text="Selasa • 14.00 WIB"
-                                               style="-fx-font-size: 10px; -fx-text-fill: #7A6A5A;"/>
-                                        <Label text="Ruang Konseling Pastoral"
-                                               style="-fx-font-size: 10px; -fx-text-fill: #7A6A5A;"/>
-                                    </VBox>
-                                    <Label text="●" style="-fx-text-fill: #E05252; -fx-font-size: 10px;"/>
-                                </HBox>
-                            </VBox>
-
-                            <Label text="BATAS PENDAFTARAN"
-                                   style="-fx-text-fill: #9A8A7A; -fx-font-size: 10px; -fx-font-weight: bold; -fx-padding: 14 16 8 16; -fx-font-family: 'Verdana';"/>
-
-                            <!-- Deadline 1 -->
-                            <VBox style="-fx-background-color: #FFF0F0; -fx-background-radius: 10; -fx-border-color: #FFCCCC; -fx-border-width: 1; -fx-border-radius: 10; -fx-padding: 12 16;">
-                                <VBox.margin><Insets left="12" right="12" bottom="8"/></VBox.margin>
-                                <HBox alignment="CENTER_LEFT" spacing="8">
-                                    <Label text="⏰" style="-fx-font-size: 14px;"/>
-                                    <VBox spacing="2">
-                                        <Label text="Baptis Maret 2024"
-                                               style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #C03030;"/>
-                                        <Label text="Tutup: 29 Februari 2024"
-                                               style="-fx-font-size: 10px; -fx-text-fill: #A04040;"/>
-                                    </VBox>
-                                </HBox>
-                                <ProgressBar progress="0.7"
-                                             style="-fx-accent: #E05252; -fx-pref-height: 6;"
-                                             maxWidth="Infinity">
-                                    <VBox.margin><Insets top="8"/></VBox.margin>
-                                </ProgressBar>
-                                <Label text="7 hari lagi"
-                                       style="-fx-font-size: 10px; -fx-text-fill: #C03030; -fx-padding: 4 0 0 0;"/>
-                            </VBox>
-
-                            <!-- Deadline 2 -->
-                            <VBox style="-fx-background-color: #FFFBEC; -fx-background-radius: 10; -fx-border-color: #FFE5A0; -fx-border-width: 1; -fx-border-radius: 10; -fx-padding: 12 16;">
-                                <VBox.margin><Insets left="12" right="12" bottom="8"/></VBox.margin>
-                                <HBox alignment="CENTER_LEFT" spacing="8">
-                                    <Label text="⏰" style="-fx-font-size: 14px;"/>
-                                    <VBox spacing="2">
-                                        <Label text="SIDI April 2024"
-                                               style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #9A7010;"/>
-                                        <Label text="Tutup: 15 Maret 2024"
-                                               style="-fx-font-size: 10px; -fx-text-fill: #7A6010;"/>
-                                    </VBox>
-                                </HBox>
-                                <ProgressBar progress="0.35"
-                                             style="-fx-accent: #D4A843; -fx-pref-height: 6;"
-                                             maxWidth="Infinity">
-                                    <VBox.margin><Insets top="8"/></VBox.margin>
-                                </ProgressBar>
-                                <Label text="23 hari lagi"
-                                       style="-fx-font-size: 10px; -fx-text-fill: #9A7010; -fx-padding: 4 0 0 0;"/>
-                            </VBox>
-
-                            <Label text="INFO GEREJA"
-                                   style="-fx-text-fill: #9A8A7A; -fx-font-size: 10px; -fx-font-weight: bold; -fx-padding: 14 16 8 16; -fx-font-family: 'Verdana';"/>
-
-                            <VBox style="-fx-padding: 4 12 16 12;" spacing="8">
-                                <HBox alignment="CENTER_LEFT" spacing="10"
-                                      style="-fx-background-color: #F5F0EB; -fx-background-radius: 10; -fx-padding: 10 14;">
-                                    <Label text="📞" style="-fx-font-size: 13px;"/>
-                                    <VBox spacing="2">
-                                        <Label text="Sekretariat Gereja"
-                                               style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #1A3A2A;"/>
-                                        <Label text="(021) 123-4567"
-                                               style="-fx-font-size: 11px; -fx-text-fill: #5A6A5E;"/>
-                                    </VBox>
-                                </HBox>
-                                <HBox alignment="CENTER_LEFT" spacing="10"
-                                      style="-fx-background-color: #F5F0EB; -fx-background-radius: 10; -fx-padding: 10 14;">
-                                    <Label text="🕒" style="-fx-font-size: 13px;"/>
-                                    <VBox spacing="2">
-                                        <Label text="Jam Operasional"
-                                               style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #1A3A2A;"/>
-                                        <Label text="Sen–Jum: 08.00–16.00"
-                                               style="-fx-font-size: 11px; -fx-text-fill: #5A6A5E;"/>
-                                    </VBox>
-                                </HBox>
-                            </VBox>
-
-                        </VBox>
-                    </ScrollPane>
-
-                </VBox>
-
-            </HBox>
+                    <Button onAction="#sendMessage"
+                            style="-fx-background-color: #1A3A2A; -fx-text-fill: #D4A843;
+                                   -fx-font-size: 16px; -fx-font-weight: bold;
+                                   -fx-background-radius: 20; -fx-padding: 10 20; -fx-cursor: hand;"
+                            text="➤"/>
+                </HBox>
+            </VBox>
         </VBox>
     </center>
 
