@@ -99,3 +99,26 @@
     -fx-text-fill: #F5F0EB;
     -fx-font-weight: bold;
 }
+
+.sidebar-menu {
+    -fx-background-color: transparent;
+    -fx-text-fill: white;
+}
+
+.sidebar-menu > .title {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-cursor: hand;
+}
+
+.sidebar-menu > .content {
+    -fx-background-color: #2D5A3D; /* Warna lebih gelap saat dibuka */
+    -fx-border-color: transparent;
+}
+
+/* Menghilangkan border default TitledPane */
+.titled-pane {
+    -fx-animated: true;
+}

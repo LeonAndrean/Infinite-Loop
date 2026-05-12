@@ -32,6 +32,9 @@ import java.util.ResourceBundle;
  * ChatbotController – Controller utama Faith Buddy
  * Menampilkan ayat harian, quick reply chips, dan menangani semua chat.
  */
+
+
+
 public class ChatbotController implements Initializable {
 
     // ── FXML ─────────────────────────────────────────────────
@@ -39,6 +42,7 @@ public class ChatbotController implements Initializable {
     @FXML private ScrollPane chatScrollPane;
     @FXML private VBox       chatContainer;
     @FXML private TextArea   messageInput;
+    @FXML private VBox       sidebar;
 
     // Ayat Harian
     @FXML private VBox  ayatHarianBox;
@@ -64,6 +68,7 @@ public class ChatbotController implements Initializable {
     private static final String MENU_LABEL_INACTIVE =
             "-fx-text-fill: #C8DDD0; -fx-font-size: 13px;";
 
+
     // ══════════════════════════════════════════════════════════
     //  INITIALIZE
     // ══════════════════════════════════════════════════════════
@@ -87,6 +92,7 @@ public class ChatbotController implements Initializable {
 
         chatContainer.heightProperty().addListener((obs, oldH, newH) -> scrollToBottom());
     }
+
 
     // ══════════════════════════════════════════════════════════
     //  AYAT HARIAN
@@ -112,6 +118,7 @@ public class ChatbotController implements Initializable {
             ayatHarianBox.setVisible(false);
         }
     }
+
 
     // ══════════════════════════════════════════════════════════
     //  SETUP
@@ -146,6 +153,19 @@ public class ChatbotController implements Initializable {
     // ══════════════════════════════════════════════════════════
     //  MENU HANDLERS
     // ══════════════════════════════════════════════════════════
+
+    @FXML
+    public void handleToggleSidebar() {
+        if (sidebar != null) { // Tambahkan pengecekan null agar lebih aman
+            if (sidebar.isVisible()) {
+                sidebar.setVisible(false);
+                sidebar.setManaged(false);
+            } else {
+                sidebar.setVisible(true);
+                sidebar.setManaged(true);
+            }
+        }
+    }
 
     @FXML private void handleMenuBeranda() {
         setActiveMenu(menuBeranda);
@@ -377,4 +397,18 @@ public class ChatbotController implements Initializable {
             System.out.println("[ChatbotController] handleAdminLogin error: " + e.getMessage());
         }
     }
+
+        @FXML
+        private void handleMenuAboutUs() {
+            addUserMessage("ℹ️ Informasi Tentang Gereja");
+            // Contoh: Panggil service untuk deskripsi gereja
+            appendBotMessage(ChatMessage.botMessage("Faith Buddy adalah asisten digital Gereja untuk membantu jemaat mendapatkan informasi layanan jemaat secara cepat."));
+        }
+
+        @FXML
+        private void handleExit() {
+            Platform.exit(); // Menutup aplikasi secara rapi
+            System.exit(0);
+        }
+
 }
