@@ -33,8 +33,6 @@ import java.util.ResourceBundle;
  * Menampilkan ayat harian, quick reply chips, dan menangani semua chat.
  */
 
-
-
 public class ChatbotController implements Initializable {
 
     // ── FXML ─────────────────────────────────────────────────
@@ -67,6 +65,18 @@ public class ChatbotController implements Initializable {
             "-fx-text-fill: #122A1E; -fx-font-size: 13px; -fx-font-weight: bold;";
     private static final String MENU_LABEL_INACTIVE =
             "-fx-text-fill: #C8DDD0; -fx-font-size: 13px;";
+
+    // Style sidebar item hover
+    private static final String SIDEBAR_ITEM_HOVER =
+            "-fx-background-color: #2D5A3D; -fx-background-radius: 10; -fx-padding: 11 16; -fx-cursor: hand;";
+    private static final String SIDEBAR_ITEM_NORMAL =
+            "-fx-background-color: transparent; -fx-background-radius: 10; -fx-padding: 11 16; -fx-cursor: hand;";
+    private static final String SIDEBAR_SUBITEM_HOVER =
+            "-fx-background-color: #2D5A3D; -fx-background-radius: 8; -fx-padding: 8 12; -fx-cursor: hand;";
+    private static final String SIDEBAR_SUBITEM_NORMAL =
+            "-fx-background-color: transparent; -fx-background-radius: 8; -fx-padding: 8 12; -fx-cursor: hand;";
+    private static final String SIDEBAR_EXIT_HOVER =
+            "-fx-background-color: #3A1A1A; -fx-background-radius: 10; -fx-padding: 11 16; -fx-cursor: hand;";
 
 
     // ══════════════════════════════════════════════════════════
@@ -151,21 +161,71 @@ public class ChatbotController implements Initializable {
     }
 
     // ══════════════════════════════════════════════════════════
-    //  MENU HANDLERS
+    //  SIDEBAR TOGGLE & HOVER HANDLERS
     // ══════════════════════════════════════════════════════════
 
     @FXML
     public void handleToggleSidebar() {
-        if (sidebar != null) { // Tambahkan pengecekan null agar lebih aman
-            if (sidebar.isVisible()) {
-                sidebar.setVisible(false);
-                sidebar.setManaged(false);
-            } else {
+        if (sidebar != null) {
+            boolean nowVisible = !sidebar.isVisible();
+            if (nowVisible) {
                 sidebar.setVisible(true);
                 sidebar.setManaged(true);
+                // Animasi slide in
+                sidebar.setTranslateX(-220);
+                Timeline tl = new Timeline(
+                        new KeyFrame(Duration.ZERO,
+                                new KeyValue(sidebar.translateXProperty(), -220)),
+                        new KeyFrame(Duration.millis(200),
+                                new KeyValue(sidebar.translateXProperty(), 0, Interpolator.EASE_OUT))
+                );
+                tl.play();
+            } else {
+                // Animasi slide out
+                Timeline tl = new Timeline(
+                        new KeyFrame(Duration.ZERO,
+                                new KeyValue(sidebar.translateXProperty(), 0)),
+                        new KeyFrame(Duration.millis(180),
+                                new KeyValue(sidebar.translateXProperty(), -220, Interpolator.EASE_IN))
+                );
+                tl.setOnFinished(e -> {
+                    sidebar.setVisible(false);
+                    sidebar.setManaged(false);
+                    sidebar.setTranslateX(0);
+                });
+                tl.play();
             }
         }
     }
+
+    /** Hover effect untuk item sidebar biasa */
+    @FXML public void onSidebarItemHover(javafx.scene.input.MouseEvent e) {
+        if (e.getSource() instanceof HBox hbox) hbox.setStyle(SIDEBAR_ITEM_HOVER);
+    }
+
+    /** Hover exit untuk item sidebar biasa & keluar */
+    @FXML public void onSidebarItemExit(javafx.scene.input.MouseEvent e) {
+        if (e.getSource() instanceof HBox hbox) hbox.setStyle(SIDEBAR_ITEM_NORMAL);
+    }
+
+    /** Hover effect untuk sub-item di dalam TitledPane Setting */
+    @FXML public void onSidebarSubItemHover(javafx.scene.input.MouseEvent e) {
+        if (e.getSource() instanceof HBox hbox) hbox.setStyle(SIDEBAR_SUBITEM_HOVER);
+    }
+
+    /** Hover exit untuk sub-item */
+    @FXML public void onSidebarSubItemExit(javafx.scene.input.MouseEvent e) {
+        if (e.getSource() instanceof HBox hbox) hbox.setStyle(SIDEBAR_SUBITEM_NORMAL);
+    }
+
+    /** Hover khusus tombol Keluar (warna merah gelap) */
+    @FXML public void onSidebarExitHover(javafx.scene.input.MouseEvent e) {
+        if (e.getSource() instanceof HBox hbox) hbox.setStyle(SIDEBAR_EXIT_HOVER);
+    }
+
+    // ══════════════════════════════════════════════════════════
+    //  MENU HANDLERS
+    // ══════════════════════════════════════════════════════════
 
     @FXML private void handleMenuBeranda() {
         setActiveMenu(menuBeranda);
@@ -236,6 +296,77 @@ public class ChatbotController implements Initializable {
         showTypingThenRespond(chatbotService.processInput("halo"));
     }
 
+    // ── Sidebar menu handlers ─────────────────────────────────
+
+    @FXML private void handleMenuKalender() {
+        addUserMessage("📅 Kalender Kegiatan Gereja");
+        showTypingThenRespond(chatbotService.processInput("jadwal kegiatan"));
+    }
+
+    @FXML private void handleMenuAboutUs() {
+        addUserMessage("ℹ️ Informasi Tentang Gereja");
+        appendBotMessage(ChatMessage.botMessage(
+                "🏛️ Tentang Faith Buddy & GKJ Ngupasan\n\n" +
+                        "Faith Buddy adalah asisten digital Gereja Kristen Jawa (GKJ) Ngupasan Yogyakarta " +
+                        "yang hadir untuk membantu jemaat mendapatkan informasi layanan gereja secara cepat dan mudah.\n\n" +
+                        "📍 Alamat: Jl. Ngupasan No. 1, Gondomanan, Yogyakarta\n" +
+                        "📞 Telepon: (0274) 512-345\n" +
+                        "🌐 Website: www.gkjngupasan.org\n" +
+                        "📱 Instagram: @gkjngupasan\n\n" +
+                        "Gereja kami berdiri sejak 1857 dan berkomitmen melayani jemaat dengan kasih Kristus."
+        ));
+    }
+
+    // ── Setting sub-menu handlers ─────────────────────────────
+
+    @FXML private void handleSettingBahasa() {
+        appendBotMessage(ChatMessage.botMessage(
+                "🌐 Pengaturan Bahasa\n\n" +
+                        "Saat ini Faith Buddy tersedia dalam Bahasa Indonesia.\n" +
+                        "Dukungan bahasa tambahan sedang dalam pengembangan.\n\n" +
+                        "Untuk saran bahasa lain, silakan hubungi sekretariat gereja."
+        ));
+    }
+
+    @FXML private void handleSettingNotifikasi() {
+        appendBotMessage(ChatMessage.botMessage(
+                "🔔 Pengaturan Notifikasi\n\n" +
+                        "Notifikasi aktif untuk:\n" +
+                        "• 📅 Jadwal kegiatan gereja\n" +
+                        "• ⏰ Deadline pendaftaran layanan\n" +
+                        "• 📢 Pengumuman dari majelis\n\n" +
+                        "Untuk mengubah preferensi notifikasi, hubungi administrator gereja."
+        ));
+    }
+
+    @FXML private void handleSettingTampilan() {
+        appendBotMessage(ChatMessage.botMessage(
+                "🎨 Pengaturan Tampilan\n\n" +
+                        "Tema saat ini: Hijau Gereja (Default)\n\n" +
+                        "Fitur kustomisasi tema akan tersedia pada pembaruan berikutnya. " +
+                        "Terima kasih atas kesabaran Anda! 🙏"
+        ));
+    }
+
+    @FXML private void handleHapusRiwayat() {
+        DatabaseHelper.hapusRiwayat();
+        appendBotMessage(ChatMessage.botMessage(
+                "🗑️ Riwayat chat telah berhasil dihapus.\n\n" +
+                        "Semua percakapan sebelumnya telah dihapus dari sistem."
+        ));
+    }
+
+    @FXML private void handleSettingBantuan() {
+        addUserMessage("❓ Bantuan / FAQ");
+        showTypingThenRespond(chatbotService.processInput("bantuan"));
+    }
+
+    // ── Admin dari sidebar ────────────────────────────────────
+
+    @FXML public void handleAdminLoginFromSidebar() {
+        handleAdminLogin();
+    }
+
     // ══════════════════════════════════════════════════════════
     //  SEND MESSAGE
     // ══════════════════════════════════════════════════════════
@@ -247,7 +378,38 @@ public class ChatbotController implements Initializable {
 
         addUserMessage(text);
         List<ChatMessage> responses = chatbotService.processInput(text);
+
+        // ── FALLBACK: Chatbot selalu membalas ──────────────────
+        // Jika service mengembalikan list kosong atau null,
+        // tampilkan pesan fallback agar user tidak jadi last chat.
+        if (responses == null || responses.isEmpty()) {
+            responses = buildFallbackResponse(text);
+        }
+
         showTypingThenRespond(responses);
+    }
+
+    /**
+     * Membangun respons fallback ketika tidak ada jawaban terdeteksi.
+     * Menyimpan pertanyaan ke DB untuk ditinjau admin, lalu balaskan pesan informatif.
+     */
+    private List<ChatMessage> buildFallbackResponse(String originalText) {
+        // Simpan pertanyaan tak terjawab ke database untuk ditinjau admin
+        DatabaseHelper.simpanPertanyaanTakTerjawab(originalText);
+
+        String fallback =
+                "🙏 Maaf, saya belum menemukan jawaban yang tepat untuk pertanyaan Anda.\n\n" +
+                        "Pertanyaan Anda telah dicatat dan akan kami tinjau untuk pembaruan ke depannya.\n\n" +
+                        "Untuk bantuan langsung, Anda dapat:\n" +
+                        "• 📞 Hubungi sekretariat: (0274) 512-345\n" +
+                        "• 💬 WhatsApp: +62 811-2800-345\n" +
+                        "• 📧 Email: sekretariat@gkjngupasan.org\n\n" +
+                        "Atau coba tanyakan salah satu topik berikut:\n" +
+                        "• Syarat baptis / sidi / pernikahan\n" +
+                        "• Jadwal ibadah\n" +
+                        "• Kontak gereja";
+
+        return List.of(ChatMessage.botMessage(fallback));
     }
 
     // ══════════════════════════════════════════════════════════
@@ -257,6 +419,9 @@ public class ChatbotController implements Initializable {
     private void handleChipClick(String chipText) {
         addUserMessage(chipText);
         List<ChatMessage> responses = chatbotService.processInput(chipText);
+        if (responses == null || responses.isEmpty()) {
+            responses = buildFallbackResponse(chipText);
+        }
         showTypingThenRespond(responses);
     }
 
@@ -398,17 +563,10 @@ public class ChatbotController implements Initializable {
         }
     }
 
-        @FXML
-        private void handleMenuAboutUs() {
-            addUserMessage("ℹ️ Informasi Tentang Gereja");
-            // Contoh: Panggil service untuk deskripsi gereja
-            appendBotMessage(ChatMessage.botMessage("Faith Buddy adalah asisten digital Gereja untuk membantu jemaat mendapatkan informasi layanan jemaat secara cepat."));
-        }
-
-        @FXML
-        private void handleExit() {
-            Platform.exit(); // Menutup aplikasi secara rapi
-            System.exit(0);
-        }
+    @FXML
+    private void handleExit() {
+        Platform.exit();
+        System.exit(0);
+    }
 
 }

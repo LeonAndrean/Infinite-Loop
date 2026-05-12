@@ -100,6 +100,11 @@
     -fx-font-weight: bold;
 }
 
+/* ══════════════════════════════════════════════════════════
+   SIDEBAR STYLES
+   ══════════════════════════════════════════════════════════ */
+
+/* TitledPane sebagai menu sidebar (Pengaturan) */
 .sidebar-menu {
     -fx-background-color: transparent;
     -fx-text-fill: white;
@@ -109,16 +114,52 @@
     -fx-background-color: transparent;
     -fx-border-color: transparent;
     -fx-text-fill: white;
-    -fx-font-size: 14px;
+    -fx-font-size: 13px;
     -fx-cursor: hand;
+    -fx-padding: 11 16;
+    -fx-background-radius: 10;
+}
+
+.sidebar-menu > .title:hover {
+    -fx-background-color: #2D5A3D;
+    -fx-background-radius: 10;
+}
+
+.sidebar-menu > .title .arrow-button {
+    -fx-background-color: transparent;
+}
+
+.sidebar-menu > .title .arrow-button .arrow {
+    -fx-background-color: #C8DDD0;
+    -fx-shape: "M 0 0 L 4 4 L 8 0 Z";
+    -fx-scale-shape: false;
+    -fx-background-insets: 0;
+}
+
+.sidebar-menu > .title .text {
+    -fx-fill: #C8DDD0;
 }
 
 .sidebar-menu > .content {
-    -fx-background-color: #2D5A3D; /* Warna lebih gelap saat dibuka */
+    -fx-background-color: #162E20;
     -fx-border-color: transparent;
+    -fx-padding: 4 0 4 8;
+    -fx-background-radius: 0 0 10 10;
+}
+
+/* Separator di dalam sidebar (lebih gelap) */
+#sidebar .separator .line {
+    -fx-border-color: #2D5A3D;
+    -fx-border-width: 0.8;
 }
 
 /* Menghilangkan border default TitledPane */
 .titled-pane {
     -fx-animated: true;
 }
+
+/* ══════════════════════════════════════════════════════════
+   TOGGLE BUTTON SIDEBAR (☰)
+   ══════════════════════════════════════════════════════════ */
+
+
