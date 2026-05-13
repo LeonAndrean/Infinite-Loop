@@ -146,6 +146,32 @@ public class ChatbotService {
                 }
             }
         }
+        // --- Bagian akhir dari method processInput ---
+
+        // LOGIKA PERBAIKAN:
+        // Cek apakah pesan user masuk ke fallback (balasanKontekstual)
+        // Jika chatbot hanya memberikan balasan default/kontekstual, berarti pertanyaan aslinya tidak terjawab
+        if (respons == null || respons.getContent() == null ||
+                respons.getContent().contains("Maaf, saya belum menemukan jawaban") ||
+                respons.getContent().contains("Maaf, saya belum memiliki informasi")) {
+
+            try {
+                // Simpan pertanyaan asli user ke tabel tak terjawab
+                DatabaseHelper.simpanPertanyaanTakTerjawab(input.trim());
+                System.out.println("[DEBUG] Berhasil memicu simpanPertanyaanTakTerjawab untuk: " + input);
+            } catch (Exception e) {
+                System.err.println("Gagal menyimpan unanswered question: " + e.getMessage());
+            }
+
+            // Pastikan respons memberikan pesan fallback yang jelas
+            if (respons == null || respons.getContent().isBlank()) {
+                respons = ChatMessage.botMessage(
+                        "🙏 Maaf, saya belum memiliki informasi mengenai hal tersebut.\n\n" +
+                                "Pertanyaan Anda sudah saya catat agar Admin dapat melengkapi informasinya segera. " +
+                                "Silakan tanya hal lain atau hubungi Sekretariat di: " + DatabaseHelper.getInfo("telepon")
+                );
+            }
+        }
 
         DatabaseHelper.simpanChat("BOT", respons.getContent());
         return List.of(respons);
@@ -344,6 +370,8 @@ public class ChatbotService {
                         "📱 WA: " + DatabaseHelper.getInfo("whatsapp") + "\n\n" +
                         "Ketik \"syarat sidi\" untuk daftar dokumen yang diperlukan.");
     }
+
+
 
     // ══════════════════════════════════════════════════════════
     //  KONSELING

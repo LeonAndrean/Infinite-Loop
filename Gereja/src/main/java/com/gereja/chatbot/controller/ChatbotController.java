@@ -25,6 +25,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
 import java.util.ResourceBundle;
 
@@ -41,6 +42,7 @@ public class ChatbotController implements Initializable {
     @FXML private VBox       chatContainer;
     @FXML private TextArea   messageInput;
     @FXML private VBox       sidebar;
+    @FXML private StackPane  chatOverlayPane;   // ← StackPane pembungkus chat + kalender overlay
 
     // Ayat Harian
     @FXML private VBox  ayatHarianBox;
@@ -298,9 +300,53 @@ public class ChatbotController implements Initializable {
 
     // ── Sidebar menu handlers ─────────────────────────────────
 
+    // ── Kalender ──────────────────────────────────────────────
+
+    /**
+     * Menampilkan overlay kalender interaktif di atas area chat.
+     * Saat user klik tanggal → kalender tutup → pesan kegiatan muncul di chat.
+     */
     @FXML private void handleMenuKalender() {
-        addUserMessage("📅 Kalender Kegiatan Gereja");
-        showTypingThenRespond(chatbotService.processInput("jadwal kegiatan"));
+        // Tutup sidebar terlebih dahulu agar kalender terlihat jelas
+        if (sidebar != null && sidebar.isVisible()) {
+            sidebar.setVisible(false);
+            sidebar.setManaged(false);
+            sidebar.setTranslateX(0);
+        }
+
+        if (chatOverlayPane == null) {
+            // Fallback jika fx:id belum terpasang di FXML lama
+            addUserMessage("📅 Kalender Kegiatan Gereja");
+            showTypingThenRespond(chatbotService.processInput("jadwal kegiatan"));
+            return;
+        }
+
+        // Jika kalender sudah terbuka, tutup dulu
+        chatOverlayPane.getChildren().removeIf(n -> "calenderOverlay".equals(n.getId()));
+
+        CalenderViewController calVC = new CalenderViewController(
+                (date, events) -> onCalenderDateSelected(date, events)
+        );
+
+        javafx.scene.layout.StackPane overlayNode = calVC.buildOverlay();
+        overlayNode.setId("calenderOverlay");
+        chatOverlayPane.getChildren().add(overlayNode);
+    }
+
+    /**
+     * Callback dari CalenderViewController saat user memilih tanggal.
+     * Menampilkan pesan kegiatan di chat.
+     */
+    private void onCalenderDateSelected(LocalDate date, List<Map<String,String>> events) {
+        // Pesan user: "📅 [tanggal yang dipilih]"
+        java.time.format.DateTimeFormatter fmtUser =
+                java.time.format.DateTimeFormatter.ofPattern("dd MMMM yyyy", new java.util.Locale("id","ID"));
+        addUserMessage("📅 " + date.format(fmtUser));
+
+        // Pesan bot: detail kegiatan
+        String botText = CalenderViewController.formatEventMessage(date, events);
+        List<ChatMessage> resp = List.of(ChatMessage.botMessage(botText));
+        showTypingThenRespond(resp);
     }
 
     @FXML private void handleMenuAboutUs() {

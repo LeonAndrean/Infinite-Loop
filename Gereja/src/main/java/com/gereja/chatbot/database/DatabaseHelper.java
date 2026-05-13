@@ -6,6 +6,9 @@ import java.security.NoSuchAlgorithmException;
 import java.sql.*;
 import java.time.LocalDate;
 import java.util.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 
 
 public class DatabaseHelper {
@@ -38,6 +41,13 @@ public class DatabaseHelper {
     private static void initDatabase(Connection c) throws SQLException {
         String[] sql = {
                 // Jadwal kegiatan
+                """
+            CREATE TABLE IF NOT EXISTS pertanyaan_tak_terjawab (
+                id         INTEGER PRIMARY KEY AUTOINCREMENT,
+                pertanyaan TEXT NOT NULL,
+                waktu      TEXT NOT NULL DEFAULT (datetime('now','localtime'))
+            )
+                """,
                 """
             CREATE TABLE IF NOT EXISTS jadwal (
                 id            INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -142,8 +152,26 @@ public class DatabaseHelper {
     }
 
     // ══════════════════════════════════════════════════════════
+//  PERTANYAAN TAK TERJAWAB
+// ══════════════════════════════════════════════════════════
+
+    public static void simpanPertanyaanTakTerjawab(String pertanyaan) {
+        if (pertanyaan == null || pertanyaan.isBlank()) return;
+
+        String sql = "INSERT INTO pertanyaan_tak_terjawab (pertanyaan) VALUES (?)";
+        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
+            ps.setString(1, pertanyaan);
+            ps.executeUpdate();
+            System.out.println("[DB] Pertanyaan tak terjawab disimpan: " + pertanyaan);
+        } catch (SQLException e) {
+            System.out.println("[DB] Gagal simpanPertanyaanTakTerjawab: " + e.getMessage());
+        }
+    }
+
+    // ══════════════════════════════════════════════════════════
     //  DATA AWAL – REAL CHURCH DATA
     // ══════════════════════════════════════════════════════════
+
 
     private static void insertDefaultDataIfEmpty(Connection c) throws SQLException {
         try (Statement st = c.createStatement();
@@ -254,6 +282,9 @@ public class DatabaseHelper {
 
         // ── Kata Kunci Q&A Default ────────────────────────────
         insertDefaultKataKunci(c);
+
+        // ── Jadwal Default (untuk Kalender) ──────────────────
+        insertDefaultJadwal(c);
 
         System.out.println("[DB] Data awal berhasil diisi.");
     }
@@ -916,7 +947,7 @@ public class DatabaseHelper {
         Set<String> stopWords = Set.of(
                 "apa", "apakah", "bagaimana", "berapa", "kapan", "dimana", "siapa",
                 "saya", "aku", "kita", "kamu", "anda", "dia", "mereka",
-                "adalah", "ada", "tidak", "bisa", "mau", "ingin", "minta", "tolong",
+                "adalah", "ada", "tidak", "bisa", "mau", "ingin", "tolong",
                 "yang", "di", "ke", "dari", "dengan", "untuk", "dan", "atau", "tapi",
                 "ini", "itu", "nih", "dong", "ya", "yuk", "gimana", "gak", "nggak",
                 "tentang", "mengenai", "soal", "info", "informasi", "tanya", "mau tanya",
@@ -1023,5 +1054,128 @@ public class DatabaseHelper {
             ps.setString(4, jamMulai); ps.setString(5, jamSelesai); ps.setString(6, lokasi);
             ps.executeUpdate();
         } catch (SQLException e) { System.out.println("[DB] tambahJadwal error: " + e.getMessage()); }
+    }
+
+    // ══════════════════════════════════════════════════════════
+    //  JADWAL DEFAULT (data contoh untuk Kalender)
+    // ══════════════════════════════════════════════════════════
+
+    private static void insertDefaultJadwal(Connection c) throws SQLException {
+        try (Statement st = c.createStatement();
+             ResultSet rs = st.executeQuery("SELECT COUNT(*) FROM jadwal")) {
+            if (rs.getInt(1) > 0) return;
+        }
+
+        LocalDate today = LocalDate.now();
+        int year  = today.getYear();
+        int month = today.getMonthValue();
+
+        java.util.function.BiFunction<Integer, Integer, String> d =
+                (m, day) -> String.format("%04d-%02d-%02d", year, m, day);
+
+        // Pastikan hari tidak melebihi jumlah hari di bulan
+        int maxDay = java.time.YearMonth.of(year, month).lengthOfMonth();
+
+        Object[][] jadwal = {
+                {"Ibadah Minggu Pagi",           "IBADAH",     d.apply(month, Math.min(1, maxDay)),  "07:00", "09:00", "Gedung Gereja Utama"},
+                {"Ibadah Minggu Siang",          "IBADAH",     d.apply(month, Math.min(1, maxDay)),  "10:30", "12:30", "Gedung Gereja Utama"},
+                {"Persekutuan Doa Pemuda",       "PEMUDA",     d.apply(month, Math.min(3, maxDay)),  "18:30", "20:00", "Ruang Serba Guna"},
+                {"Rapat Majelis Bulanan",        "INTERNAL",   d.apply(month, Math.min(5, maxDay)),  "09:00", "11:00", "Ruang Rapat Gereja"},
+                {"Kelas Katekisasi Dewasa",      "SIDI",       d.apply(month, Math.min(6, maxDay)),  "16:00", "18:00", "Ruang Kelas A"},
+                {"Ibadah Minggu Pagi",           "IBADAH",     d.apply(month, Math.min(8, maxDay)),  "07:00", "09:00", "Gedung Gereja Utama"},
+                {"Ibadah Minggu Siang",          "IBADAH",     d.apply(month, Math.min(8, maxDay)),  "10:30", "12:30", "Gedung Gereja Utama"},
+                {"Pelatihan Paduan Suara",       "MUSIK",      d.apply(month, Math.min(9, maxDay)),  "17:00", "19:00", "Ruang Musik"},
+                {"Ibadah Keluarga",              "IBADAH",     d.apply(month, Math.min(10, maxDay)), "18:30", "20:00", "Gedung Gereja Utama"},
+                {"Persekutuan Ibu-Ibu",          "PERSEKUTUAN",d.apply(month, Math.min(11, maxDay)), "09:00", "11:00", "Aula Gereja"},
+                {"Pendaftaran Baptis Anak",      "BAPTIS",     d.apply(month, Math.min(12, maxDay)), "09:00", "12:00", "Sekretariat"},
+                {"Kelas Katekisasi Dewasa",      "SIDI",       d.apply(month, Math.min(13, maxDay)), "16:00", "18:00", "Ruang Kelas A"},
+                {"Ibadah Minggu Pagi",           "IBADAH",     d.apply(month, Math.min(15, maxDay)), "07:00", "09:00", "Gedung Gereja Utama"},
+                {"Ibadah Minggu Siang",          "IBADAH",     d.apply(month, Math.min(15, maxDay)), "10:30", "12:30", "Gedung Gereja Utama"},
+                {"Seminar Keluarga Kristen",     "SEMINAR",    d.apply(month, Math.min(16, maxDay)), "09:00", "15:00", "Aula Gereja"},
+                {"Persekutuan Doa Pemuda",       "PEMUDA",     d.apply(month, Math.min(17, maxDay)), "18:30", "20:00", "Ruang Serba Guna"},
+                {"Latihan Drama",                "MUSIK",      d.apply(month, Math.min(18, maxDay)), "15:00", "18:00", "Aula Gereja"},
+                {"Pelayanan Masyarakat",         "SOSIAL",     d.apply(month, Math.min(20, maxDay)), "08:00", "13:00", "Panti Asuhan Kasih"},
+                {"Kelas Katekisasi Pemuda",      "SIDI",       d.apply(month, Math.min(20, maxDay)), "16:00", "18:00", "Ruang Kelas B"},
+                {"Ibadah Minggu Pagi",           "IBADAH",     d.apply(month, Math.min(22, maxDay)), "07:00", "09:00", "Gedung Gereja Utama"},
+                {"Ibadah Minggu Siang",          "IBADAH",     d.apply(month, Math.min(22, maxDay)), "10:30", "12:30", "Gedung Gereja Utama"},
+                {"Konseling Pastoral",           "KONSELING",  d.apply(month, Math.min(23, maxDay)), "09:00", "16:00", "Ruang Konseling"},
+                {"Rapat Panitia",                "INTERNAL",   d.apply(month, Math.min(24, maxDay)), "18:00", "20:00", "Ruang Rapat Gereja"},
+                {"Pemberkatan Pernikahan",       "PERNIKAHAN", d.apply(month, Math.min(25, maxDay)), "10:00", "12:00", "Gedung Gereja Utama"},
+                {"Ibadah Padang Pemuda",         "PEMUDA",     d.apply(month, Math.min(26, maxDay)), "07:00", "15:00", "Kaliurang"},
+                {"Pendalaman Alkitab Sel",       "IBADAH",     d.apply(month, Math.min(27, maxDay)), "19:00", "20:30", "Rumah Jemaat"},
+                {"Ibadah Minggu Pagi",           "IBADAH",     d.apply(month, Math.min(29, maxDay)), "07:00", "09:00", "Gedung Gereja Utama"},
+                {"Pelantikan Pengurus Baru",     "INTERNAL",   d.apply(month, Math.min(29, maxDay)), "10:00", "12:00", "Aula Gereja"},
+        };
+
+        // Bulan depan
+        int nm = month == 12 ? 1  : month + 1;
+        int ny = month == 12 ? year + 1 : year;
+        int maxDayNext = java.time.YearMonth.of(ny, nm).lengthOfMonth();
+        java.util.function.BiFunction<Integer, Integer, String> dn =
+                (m, day) -> String.format("%04d-%02d-%02d", ny, m, day);
+
+        Object[][] jadwalNext = {
+                {"Ibadah Awal Bulan",        "IBADAH",  dn.apply(nm, Math.min(1, maxDayNext)),  "07:00", "09:00", "Gedung Gereja Utama"},
+                {"Pendaftaran SIDI Baru",    "SIDI",    dn.apply(nm, Math.min(3, maxDayNext)),  "09:00", "12:00", "Sekretariat"},
+                {"Ibadah Minggu Pagi",       "IBADAH",  dn.apply(nm, Math.min(5, maxDayNext)),  "07:00", "09:00", "Gedung Gereja Utama"},
+                {"Retret Keluarga Gereja",   "SEMINAR", dn.apply(nm, Math.min(10, maxDayNext)), "08:00", "17:00", "Hotel Merbabu"},
+                {"Pendaftaran Baptis Dewasa","BAPTIS",  dn.apply(nm, Math.min(15, maxDayNext)), "09:00", "12:00", "Sekretariat"},
+        };
+
+        String sql = "INSERT INTO jadwal(nama_kegiatan,kategori,tanggal,jam_mulai,jam_selesai,lokasi) VALUES(?,?,?,?,?,?)";
+        try (PreparedStatement ps = c.prepareStatement(sql)) {
+            for (Object[][] arr : new Object[][][] { jadwal, jadwalNext }) {
+                for (Object[] row : arr) {
+                    ps.setString(1, (String) row[0]); ps.setString(2, (String) row[1]);
+                    ps.setString(3, (String) row[2]); ps.setString(4, (String) row[3]);
+                    ps.setString(5, (String) row[4]); ps.setString(6, (String) row[5]);
+                    ps.executeUpdate();
+                }
+            }
+        }
+        System.out.println("[DB] Data jadwal default berhasil diisi.");
+    }
+
+    // ══════════════════════════════════════════════════════════
+    //  GET JADWAL PER BULAN (digunakan oleh CalendarViewController)
+    // ══════════════════════════════════════════════════════════
+
+    /**
+     * Mengembalikan semua jadwal dalam rentang tanggal (format yyyy-MM-dd).
+     * Return: Map< "yyyy-MM-dd", List<Map<field, value>> >
+     */
+    public static Map<String, List<Map<String, String>>> getJadwalBulan(
+            String startDate, String endDate) {
+        Map<String, List<Map<String, String>>> result = new LinkedHashMap<>();
+        String sql = "SELECT nama_kegiatan, kategori, tanggal, jam_mulai, jam_selesai, lokasi " +
+                "FROM jadwal WHERE tanggal >= ? AND tanggal <= ? ORDER BY tanggal, jam_mulai";
+        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
+            ps.setString(1, startDate);
+            ps.setString(2, endDate);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                String tgl = rs.getString("tanggal");
+                Map<String, String> ev = new LinkedHashMap<>();
+                ev.put("nama_kegiatan", rs.getString("nama_kegiatan"));
+                ev.put("kategori",      rs.getString("kategori"));
+                ev.put("tanggal",       tgl);
+                ev.put("jam_mulai",     rs.getString("jam_mulai")   != null ? rs.getString("jam_mulai")   : "");
+                ev.put("jam_selesai",   rs.getString("jam_selesai") != null ? rs.getString("jam_selesai") : "");
+                ev.put("lokasi",        rs.getString("lokasi")      != null ? rs.getString("lokasi")      : "");
+                result.computeIfAbsent(tgl, k -> new ArrayList<>()).add(ev);
+            }
+        } catch (SQLException e) {
+            System.out.println("[DB] getJadwalBulan error: " + e.getMessage());
+        }
+        return result;
+    }
+
+    /**
+     * Hapus semua jadwal (untuk admin reset data).
+     */
+    public static void hapusSemuaJadwal() {
+        try (Statement st = getConnection().createStatement()) {
+            st.execute("DELETE FROM jadwal");
+        } catch (SQLException e) { System.out.println("[DB] hapusSemuaJadwal error: " + e.getMessage()); }
     }
 }

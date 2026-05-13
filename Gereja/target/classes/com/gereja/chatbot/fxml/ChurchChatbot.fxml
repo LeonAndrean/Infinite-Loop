@@ -243,7 +243,7 @@
             </VBox>
 
             <!-- ── Chat Area (StackPane agar ayat tidak bergeser) ── -->
-            <StackPane VBox.vgrow="ALWAYS">
+            <StackPane fx:id="chatOverlayPane" VBox.vgrow="ALWAYS">
                 <ScrollPane fx:id="chatScrollPane"
                             style="-fx-background-color: transparent; -fx-background: transparent;"
                             fitToWidth="true"
