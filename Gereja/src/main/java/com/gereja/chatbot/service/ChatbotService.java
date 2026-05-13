@@ -177,7 +177,7 @@ public class ChatbotService {
         return List.of(respons);
     }
 
-    // ── Shortcut sidebar ──────────────────────────────────────
+//    // ── Shortcut sidebar ──────────────────────────────────────
     public ChatMessage getInfoBaptis()    { state = State.BAPTIS;    return infoBaptis();     }
     public ChatMessage getInfoPernikahan(){ state = State.NIKAH;     return infoNikah();      }
     public ChatMessage getInfoSidi()      { state = State.SIDI;      return infoSidi();       }
@@ -192,28 +192,21 @@ public class ChatbotService {
     private ChatMessage pesanWelcome() {
         String namaGereja = DatabaseHelper.getInfo("nama_gereja");
         return ChatMessage.botMessage(
-                "Shalom! Selamat datang di Faith Buddy 🙏\n\n" +
-                        "Asisten informasi " + namaGereja + ".\n\n" +
-                        "Silakan ketik pertanyaan Anda atau pilih menu di bawah:\n\n" +
-                        "💧 Baptis\n" +
-                        "💍 Pernikahan\n" +
-                        "📖 SIDI / Peneguhan\n" +
-                        "🤝 Konseling Pastoral\n" +
-                        "📅 Jadwal Kegiatan\n" +
-                        "📞 Kontak & Lokasi\n\n" +
-                        "Contoh: \"syarat baptis\", \"jadwal sidi\", \"biaya pernikahan\", \"visi gereja\"");
+                "Shalom! Selamat datang di Faith Buddy 🙏\n\n" );
+//                        "Asisten informasi " + namaGereja + ".\n\n" +
+//                        "Silakan ketik pertanyaan Anda atau pilih menu di bawah:\n\n" +
+//                        "💧 Baptis\n" +
+//                        "💍 Pernikahan\n" +
+//                        "📖 SIDI / Peneguhan\n" +
+//                        "🤝 Konseling Pastoral\n" +
+//                        "📅 Jadwal Kegiatan\n" +
+//                        "📞 Kontak & Lokasi\n\n" +
+//                        "Contoh: \"syarat baptis\", \"jadwal sidi\", \"biaya pernikahan\", \"visi gereja\"");
     }
 
     private ChatMessage pesanSalam() {
         return ChatMessage.botMessage(
-                "Shalom! Tuhan memberkati 🙏\n\n" +
-                        "Saya siap membantu informasi pelayanan " + DatabaseHelper.getInfo("nama_gereja") + ".\n\n" +
-                        "Ketik pertanyaan Anda, misalnya:\n" +
-                        "• \"syarat baptis\"\n" +
-                        "• \"jadwal sidi\"\n" +
-                        "• \"biaya pernikahan\"\n" +
-                        "• \"visi gereja\"\n" +
-                        "• \"kontak sekretariat\"");
+                "Shalom! Tuhan memberkati 🙏\n\n" );
     }
 
     private ChatMessage pesanMakasih() {
@@ -520,34 +513,34 @@ public class ChatbotService {
         return switch (state) {
             case BAPTIS    -> ChatMessage.botMessage(
                     "Tentang Pembaptisan, Anda dapat bertanya:\n\n" +
-                            "💧 \"syarat baptis\"\n" +
-                            "📅 \"jadwal baptis\"\n" +
-                            "💰 \"biaya baptis\"");
+                            "-\"syarat baptis\"\n" +
+                            "- \"jadwal baptis\"\n" +
+                            "- \"biaya baptis\"");
             case NIKAH     -> ChatMessage.botMessage(
                     "Tentang Pernikahan, Anda dapat bertanya:\n\n" +
-                            "💍 \"syarat pernikahan\"\n" +
-                            "📅 \"jadwal pra-nikah\"\n" +
-                            "💰 \"biaya pernikahan\"");
+                            "- \"syarat pernikahan\"\n" +
+                            "- \"jadwal pra-nikah\"\n" +
+                            "- \"biaya pernikahan\"");
             case SIDI      -> ChatMessage.botMessage(
                     "Tentang SIDI, Anda dapat bertanya:\n\n" +
-                            "📖 \"syarat sidi\"\n" +
-                            "📅 \"jadwal sidi\"\n" +
-                            "💰 \"biaya sidi\"");
+                            "- \"syarat sidi\"\n" +
+                            "- \"jadwal sidi\"\n" +
+                            "- \"biaya sidi\"");
             case KONSELING -> ChatMessage.botMessage(
                     "Untuk informasi konseling:\n\n" +
-                            "🤝 \"jadwal konseling\"\n" +
-                            "💰 \"biaya konseling\"\n\n" +
+                            "- \"jadwal konseling\"\n" +
+                            "- \"biaya konseling\"\n\n" +
                             "Atau langsung hubungi: " + DatabaseHelper.getInfo("telepon"));
             default        -> ChatMessage.botMessage(
                     "Maaf, saya belum menemukan jawaban untuk pertanyaan tersebut. 🙏\n\n" +
                             "Silakan tanya tentang:\n" +
-                            "💧 Baptis\n" +
-                            "💍 Pernikahan\n" +
-                            "📖 SIDI / Peneguhan\n" +
-                            "🤝 Konseling\n" +
-                            "📅 Jadwal Kegiatan\n" +
-                            "⛪ Visi, Misi & Profil Gereja\n" +
-                            "📞 Kontak & Lokasi\n\n" +
+                            "- Baptis\n" +
+                            "- Pernikahan\n" +
+                            "- SIDI / Peneguhan\n" +
+                            "- Konseling\n" +
+                            "- Jadwal Kegiatan\n" +
+                            "- Visi, Misi & Profil Gereja\n" +
+                            "- Kontak & Lokasi\n\n" +
                             "Contoh: \"syarat baptis\", \"jam ibadah\", \"pendeta gereja\"");
         };
     }

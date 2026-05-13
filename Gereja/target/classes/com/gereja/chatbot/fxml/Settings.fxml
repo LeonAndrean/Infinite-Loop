@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/17.0.12"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.gereja.chatbot.controller.SettingsController"
+            stylesheets="@../css/styles.css"
+            style="-fx-background-color: #1C3D2B;">
+
+    <!-- ================= HEADER ================= -->
+
+    <top>
+
+        <VBox alignment="CENTER"
+              spacing="6"
+              styleClass="settings-header">
+
+            <HBox alignment="CENTER_LEFT">
+
+                <Button text="←"
+                        onAction="#handleBack"
+                        style="-fx-background-color: transparent;
+                               -fx-text-fill: #D4A843;
+                               -fx-font-size: 22px;
+                               -fx-cursor: hand;" />
+
+            </HBox>
+
+            <Label text="Faith Buddy"
+                   style="-fx-text-fill: #f8f8f8;
+                          -fx-font-size: 24px;
+                          -fx-font-weight: bold;" />
+
+            <Label text="Pengaturan Aplikasi"
+                   style="-fx-text-fill: #7AAA8A;
+                          -fx-font-size: 13px;" />
+
+        </VBox>
+
+    </top>
+
+    <!-- ================= SIDEBAR ================= -->
+
+    <left>
+
+        <VBox spacing="18"
+              prefWidth="230"
+              styleClass="settings-sidebar">
+
+            <Button text="Umum"
+                    onAction="#showUmum"
+                    prefWidth="180"
+                    prefHeight="45"
+                    styleClass="settings-sidebar-active"/>
+
+            <Button text="Notifikasi"
+                    onAction="#showNotif"
+                    prefWidth="180"
+                    prefHeight="45"
+                    styleClass="settings-sidebar-button"/>
+
+            <Button text="Pengaturan Chat"
+                    onAction="#showChat"
+                    prefWidth="180"
+                    prefHeight="45"
+                    styleClass="settings-sidebar-button"/>
+
+            <Button text="Akun"
+                    onAction="#showAkun"
+                    prefWidth="180"
+                    prefHeight="45"
+                    styleClass="settings-sidebar-button"/>
+
+            <Button text="Tentang"
+                    onAction="#showTentang"
+                    prefWidth="180"
+                    prefHeight="45"
+                    styleClass="settings-sidebar-button"/>
+
+            <Pane VBox.vgrow="ALWAYS"/>
+
+            <Label text="Faith Buddy v1.0"
+                   style="-fx-text-fill: #7AAA8A;
+                          -fx-font-size: 12px;" />
+
+        </VBox>
+
+    </left>
+
+    <!-- ================= CENTER CONTENT ================= -->
+
+    <center>
+
+        <ScrollPane fitToWidth="true"
+                    style="-fx-background: #1C3D2B;
+                           -fx-background-color: transparent;">
+
+            <VBox spacing="20"
+                  style="-fx-padding: 24;">
+
+                <!-- ================= UMUM ================= -->
+
+                <VBox fx:id="umumPane"
+                      spacing="18"
+                      styleClass="settings-card">
+
+                    <Label text="TAMPILAN"
+                           styleClass="settings-title"/>
+
+                    <VBox spacing="12">
+
+                        <HBox alignment="CENTER_LEFT"
+                              spacing="20">
+
+                            <VBox spacing="4"
+                                  HBox.hgrow="ALWAYS">
+
+                                <Label text="Tema"
+                                       styleClass="settings-main-label"/>
+
+                                <Label text="Pilih tema aplikasi"
+                                       styleClass="settings-sub-label"/>
+
+                            </VBox>
+
+                            <ComboBox fx:id="cmbTheme"
+                                      prefWidth="220"
+                                      styleClass="settings-combo"/>
+
+                        </HBox>
+
+                        <HBox alignment="CENTER_LEFT"
+                              spacing="20">
+
+                            <VBox spacing="4"
+                                  HBox.hgrow="ALWAYS">
+
+                                <Label text="Ukuran Font"
+                                       styleClass="settings-main-label"/>
+
+                                <Label text="Atur ukuran teks aplikasi"
+                                       styleClass="settings-sub-label"/>
+
+                            </VBox>
+
+                            <ComboBox fx:id="cmbFontSize"
+                                      prefWidth="220"
+                                      styleClass="settings-combo"/>
+
+                        </HBox>
+
+                        <CheckBox fx:id="chkDarkMode"
+                                  text="Mode Gelap"
+                                  styleClass="settings-checkbox"/>
+
+                    </VBox>
+
+                </VBox>
+
+                <!-- ================= NOTIFIKASI ================= -->
+
+                <VBox fx:id="notifPane"
+                      spacing="18"
+                      styleClass="settings-card"
+                      visible="false"
+                      managed="false">
+
+                    <Label text="NOTIFIKASI"
+                           styleClass="settings-title"/>
+
+                    <CheckBox fx:id="chkNotification"
+                              text="Aktifkan Notifikasi"
+                              styleClass="settings-checkbox"/>
+
+                    <CheckBox fx:id="chkSound"
+                              text="Aktifkan Suara"
+                              styleClass="settings-checkbox"/>
+
+                </VBox>
+
+                <!-- ================= CHAT ================= -->
+
+                <VBox fx:id="chatPane"
+                      spacing="18"
+                      styleClass="settings-card"
+                      visible="false"
+                      managed="false">
+
+                    <Label text="PENGATURAN CHAT"
+                           styleClass="settings-title"/>
+
+                    <CheckBox fx:id="chkHistory"
+                              text="Simpan Riwayat Chat"
+                              styleClass="settings-checkbox"/>
+
+                    <CheckBox fx:id="chkAutoReply"
+                              text="Saran Balasan Otomatis"
+                              styleClass="settings-checkbox"/>
+
+                    <CheckBox fx:id="chkAutoScroll"
+                              text="Scroll Otomatis ke Chat Terbaru"
+                              styleClass="settings-checkbox"/>
+
+                </VBox>
+
+                <!-- ================= AKUN ================= -->
+
+                <VBox fx:id="akunPane"
+                      spacing="18"
+                      styleClass="settings-card"
+                      visible="false"
+                      managed="false">
+
+                    <Label text="AKUN"
+                           styleClass="settings-title"/>
+
+                    <Button text="LOGIN ADMIN"
+                            prefWidth="200"
+                            prefHeight="40"
+                            styleClass="settings-outline-button"/>
+
+                    <Button text="KELUAR"
+                            prefWidth="200"
+                            prefHeight="40"
+                            styleClass="settings-outline-button"/>
+
+                </VBox>
+
+                <!-- ================= TENTANG ================= -->
+
+                <VBox fx:id="tentangPane"
+                      spacing="18"
+                      styleClass="settings-card"
+                      visible="false"
+                      managed="false">
+
+                    <Label text="TENTANG"
+                           styleClass="settings-title"/>
+
+                    <Label text="Faith Buddy adalah aplikasi chatbot gereja untuk membantu pelayanan dan interaksi jemaat."
+                           wrapText="true"
+                           styleClass="settings-sub-label"/>
+
+                </VBox>
+
+                <!-- ================= BUTTONS ================= -->
+
+                <HBox spacing="18">
+
+                    <Button text="SIMPAN PENGATURAN"
+                            onAction="#handleSave"
+                            prefWidth="260"
+                            prefHeight="45"
+                            styleClass="settings-gold-button"/>
+
+                    <Button text="KEMBALI"
+                            onAction="#handleBack"
+                            prefWidth="260"
+                            prefHeight="45"
+                            styleClass="settings-outline-button"/>
+
+                </HBox>
+
+            </VBox>
+
+        </ScrollPane>
+
+    </center>
+
+</BorderPane>

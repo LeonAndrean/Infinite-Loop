@@ -259,44 +259,44 @@
                          -fx-border-width: 1 0 0 0; -fx-padding: 10 16;">
 
                 <!-- Quick Reply Chips -->
-                <HBox fx:id="quickReplyChips" spacing="6" style="-fx-padding: 0 0 8 0;">
-                    <Button text="💧 Baptis"
-                            onAction="#handleMenuPembaptisan"
-                            style="-fx-background-color: #EAF3EA; -fx-text-fill: #1A3A2A;
-                                   -fx-background-radius: 14; -fx-border-color: #C8DDD0;
-                                   -fx-border-radius: 14; -fx-border-width: 1;
-                                   -fx-padding: 5 12; -fx-cursor: hand; -fx-font-size: 11px;"/>
-                    <Button text="💍 Pernikahan"
-                            onAction="#handleMenuPernikahan"
-                            style="-fx-background-color: #EAF3EA; -fx-text-fill: #1A3A2A;
-                                   -fx-background-radius: 14; -fx-border-color: #C8DDD0;
-                                   -fx-border-radius: 14; -fx-border-width: 1;
-                                   -fx-padding: 5 12; -fx-cursor: hand; -fx-font-size: 11px;"/>
-                    <Button text="📖 SIDI"
-                            onAction="#handleMenuSidi"
-                            style="-fx-background-color: #EAF3EA; -fx-text-fill: #1A3A2A;
-                                   -fx-background-radius: 14; -fx-border-color: #C8DDD0;
-                                   -fx-border-radius: 14; -fx-border-width: 1;
-                                   -fx-padding: 5 12; -fx-cursor: hand; -fx-font-size: 11px;"/>
-                    <Button text="🤝 Konseling"
-                            onAction="#handleMenuKonseling"
-                            style="-fx-background-color: #EAF3EA; -fx-text-fill: #1A3A2A;
-                                   -fx-background-radius: 14; -fx-border-color: #C8DDD0;
-                                   -fx-border-radius: 14; -fx-border-width: 1;
-                                   -fx-padding: 5 12; -fx-cursor: hand; -fx-font-size: 11px;"/>
-                    <Button text="📅 Jadwal"
-                            onAction="#handleMenuJadwal"
-                            style="-fx-background-color: #EAF3EA; -fx-text-fill: #1A3A2A;
-                                   -fx-background-radius: 14; -fx-border-color: #C8DDD0;
-                                   -fx-border-radius: 14; -fx-border-width: 1;
-                                   -fx-padding: 5 12; -fx-cursor: hand; -fx-font-size: 11px;"/>
-                    <Button text="📞 Kontak"
-                            onAction="#handleMenuKontak"
-                            style="-fx-background-color: #EAF3EA; -fx-text-fill: #1A3A2A;
-                                   -fx-background-radius: 14; -fx-border-color: #C8DDD0;
-                                   -fx-border-radius: 14; -fx-border-width: 1;
-                                   -fx-padding: 5 12; -fx-cursor: hand; -fx-font-size: 11px;"/>
-                </HBox>
+<!--                <HBox fx:id="quickReplyChips" spacing="6" style="-fx-padding: 0 0 8 0;">-->
+<!--                    <Button text="💧 Baptis"-->
+<!--                            onAction="#handleMenuPembaptisan"-->
+<!--                            style="-fx-background-color: #EAF3EA; -fx-text-fill: #1A3A2A;-->
+<!--                                   -fx-background-radius: 14; -fx-border-color: #C8DDD0;-->
+<!--                                   -fx-border-radius: 14; -fx-border-width: 1;-->
+<!--                                   -fx-padding: 5 12; -fx-cursor: hand; -fx-font-size: 11px;"/>-->
+<!--                    <Button text="💍 Pernikahan"-->
+<!--                            onAction="#handleMenuPernikahan"-->
+<!--                            style="-fx-background-color: #EAF3EA; -fx-text-fill: #1A3A2A;-->
+<!--                                   -fx-background-radius: 14; -fx-border-color: #C8DDD0;-->
+<!--                                   -fx-border-radius: 14; -fx-border-width: 1;-->
+<!--                                   -fx-padding: 5 12; -fx-cursor: hand; -fx-font-size: 11px;"/>-->
+<!--                    <Button text="📖 SIDI"-->
+<!--                            onAction="#handleMenuSidi"-->
+<!--                            style="-fx-background-color: #EAF3EA; -fx-text-fill: #1A3A2A;-->
+<!--                                   -fx-background-radius: 14; -fx-border-color: #C8DDD0;-->
+<!--                                   -fx-border-radius: 14; -fx-border-width: 1;-->
+<!--                                   -fx-padding: 5 12; -fx-cursor: hand; -fx-font-size: 11px;"/>-->
+<!--                    <Button text="🤝 Konseling"-->
+<!--                            onAction="#handleMenuKonseling"-->
+<!--                            style="-fx-background-color: #EAF3EA; -fx-text-fill: #1A3A2A;-->
+<!--                                   -fx-background-radius: 14; -fx-border-color: #C8DDD0;-->
+<!--                                   -fx-border-radius: 14; -fx-border-width: 1;-->
+<!--                                   -fx-padding: 5 12; -fx-cursor: hand; -fx-font-size: 11px;"/>-->
+<!--                    <Button text="📅 Jadwal"-->
+<!--                            onAction="#handleMenuJadwal"-->
+<!--                            style="-fx-background-color: #EAF3EA; -fx-text-fill: #1A3A2A;-->
+<!--                                   -fx-background-radius: 14; -fx-border-color: #C8DDD0;-->
+<!--                                   -fx-border-radius: 14; -fx-border-width: 1;-->
+<!--                                   -fx-padding: 5 12; -fx-cursor: hand; -fx-font-size: 11px;"/>-->
+<!--                    <Button text="📞 Kontak"-->
+<!--                            onAction="#handleMenuKontak"-->
+<!--                            style="-fx-background-color: #EAF3EA; -fx-text-fill: #1A3A2A;-->
+<!--                                   -fx-background-radius: 14; -fx-border-color: #C8DDD0;-->
+<!--                                   -fx-border-radius: 14; -fx-border-width: 1;-->
+<!--                                   -fx-padding: 5 12; -fx-cursor: hand; -fx-font-size: 11px;"/>-->
+<!--                </HBox>-->
 
                 <!-- Input pesan -->
                 <HBox alignment="CENTER" spacing="10">

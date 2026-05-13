@@ -157,4 +157,131 @@
 .titled-pane {
     -fx-animated: true;
 }
-s
+
+/* ══════════════════════════════════════════════════════════
+   TOGGLE BUTTON SIDEBAR (☰)
+   ══════════════════════════════════════════════════════════ */
+
+/* ═══════════════════════════════════════════════════════════
+   SETTINGS PAGE
+   ═══════════════════════════════════════════════════════════ */
+
+/* HEADER */
+.settings-header {
+    -fx-background-color: #122A1E;
+    -fx-padding: 14;
+}
+
+/* SIDEBAR */
+.settings-sidebar {
+    -fx-background-color: #142D1F;
+    -fx-padding: 28;
+}
+
+/* SIDEBAR ACTIVE BUTTON */
+.settings-sidebar-active {
+    -fx-background-color: #1C3D2B;
+    -fx-text-fill: #D4A843;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 5;
+    -fx-alignment: CENTER_LEFT;
+    -fx-cursor: hand;
+}
+
+/* SIDEBAR NORMAL BUTTON */
+.settings-sidebar-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: #E8F0EB;
+    -fx-font-size: 14px;
+    -fx-background-radius: 5;
+    -fx-alignment: CENTER_LEFT;
+    -fx-cursor: hand;
+}
+
+/* SIDEBAR HOVER */
+.settings-sidebar-button:hover {
+    -fx-background-color: #1C3D2B;
+}
+
+/* CARD */
+.settings-card {
+    -fx-background-color: #142D1F;
+    -fx-background-radius: 5;
+    -fx-padding: 22;
+}
+
+/* SECTION TITLE */
+.settings-title {
+    -fx-text-fill: #9EC4AE;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+}
+
+/* MAIN LABEL */
+.settings-main-label {
+    -fx-text-fill: #E8F0EB;
+    -fx-font-size: 14px;
+}
+
+/* SUB LABEL */
+.settings-sub-label {
+    -fx-text-fill: #7AAA8A;
+    -fx-font-size: 12px;
+}
+
+/* COMBO BOX */
+.settings-combo {
+    -fx-background-color: #1C3D2B;
+    -fx-text-fill: #E8F0EB;
+    -fx-font-size: 14px;
+    -fx-border-color: #7AAA8A;
+    -fx-border-radius: 3;
+}
+
+/* CHECKBOX */
+.settings-checkbox {
+    -fx-text-fill: #E8F0EB;
+    -fx-font-size: 13px;
+}
+
+.settings-checkbox .box {
+    -fx-background-color: #1C3D2B;
+    -fx-border-color: #7AAA8A;
+}
+
+.settings-checkbox:selected .mark {
+    -fx-background-color: #D4A843;
+}
+
+/* GOLD BUTTON */
+.settings-gold-button {
+    -fx-background-color: #D4A843;
+    -fx-text-fill: #1C3D2B;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+    -fx-background-radius: 5;
+    -fx-cursor: hand;
+}
+
+/* GOLD BUTTON HOVER */
+.settings-gold-button:hover {
+    -fx-background-color: #e0b94d;
+}
+
+/* OUTLINE BUTTON */
+.settings-outline-button {
+    -fx-background-color: transparent;
+    -fx-border-color: #D4A843;
+    -fx-border-radius: 5;
+    -fx-text-fill: #D4A843;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+    -fx-background-radius: 5;
+    -fx-cursor: hand;
+}
+
+/* OUTLINE HOVER */
+.settings-outline-button:hover {
+    -fx-background-color: rgba(212, 168, 67, 0.1);
+}
