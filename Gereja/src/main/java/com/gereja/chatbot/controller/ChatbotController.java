@@ -511,10 +511,7 @@ public class ChatbotController implements Initializable {
     }
 
     private Node buildBotNode(ChatMessage msg) {
-        return switch (msg.getType()) {
-            case STEP_INFO -> bubbleFactory.buildBotStepBubble(msg);
-            default        -> bubbleFactory.buildBotTextBubble(msg);
-        };
+        return bubbleFactory.buildBotTextBubble(msg);
     }
 
     // ══════════════════════════════════════════════════════════
