@@ -1,8 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.text.*?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
 
 <BorderPane prefHeight="720" prefWidth="1100"
             style="-fx-background-color: #F2EEE9;"
@@ -10,171 +19,14 @@
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.gereja.chatbot.controller.ChatbotController">
 
-    <!-- ═══════════════ SIDEBAR (kiri, bisa di-hide) ═══════════════ -->
-    <left>
-        <VBox fx:id="sidebar" prefWidth="220"
-              style="-fx-background-color: #1A3A2A; -fx-padding: 0;"
-              visible="false" managed="false">
-
-            <!-- ── Header Chatbot ── -->
-            <VBox alignment="CENTER"
-                  style="-fx-background-color: #122A1E; -fx-padding: 24 16 20 16; -fx-border-color: #D4A843; -fx-border-width: 0 0 1 0;">
-                <Label text="✝"
-                       style="-fx-text-fill: #D4A843; -fx-font-size: 28px;"/>
-                <Label text="Faith Buddy"
-                       style="-fx-text-fill: #F5F0EB; -fx-font-size: 16px; -fx-font-weight: bold; -fx-padding: 6 0 2 0;">
-                    <font><Font name="System Bold" size="16.0"/></font>
-                </Label>
-                <Label text="Asisten Informasi Gereja"
-                       style="-fx-text-fill: #7AAA8A; -fx-font-size: 10px; -fx-letter-spacing: 1;"/>
-            </VBox>
-
-            <!-- ── Menu Items ── -->
-            <VBox spacing="4" style="-fx-padding: 12 10 0 10;" VBox.vgrow="ALWAYS">
-
-                <!-- Kalender -->
-                <HBox alignment="CENTER_LEFT" spacing="12"
-                      style="-fx-background-color: transparent; -fx-background-radius: 10; -fx-padding: 11 16; -fx-cursor: hand;"
-                      onMouseClicked="#handleMenuKalender"
-                      onMouseEntered="#onSidebarItemHover"
-                      onMouseExited="#onSidebarItemExit">
-                    <Label text="📅" style="-fx-font-size: 15px;"/>
-                    <Label text="Kalender Kegiatan"
-                           style="-fx-text-fill: #C8DDD0; -fx-font-size: 13px;"/>
-                </HBox>
-
-                <!-- About Us -->
-                <HBox alignment="CENTER_LEFT" spacing="12"
-                      style="-fx-background-color: transparent; -fx-background-radius: 10; -fx-padding: 11 16; -fx-cursor: hand;"
-                      onMouseClicked="#handleMenuAboutUs"
-                      onMouseEntered="#onSidebarItemHover"
-                      onMouseExited="#onSidebarItemExit">
-                    <Label text="ℹ️" style="-fx-font-size: 15px;"/>
-                    <Label text="Tentang Kami"
-                           style="-fx-text-fill: #C8DDD0; -fx-font-size: 13px;"/>
-                </HBox>
-
-                <!-- Separator -->
-                <Separator style="-fx-padding: 4 0;"/>
-
-                <!-- Setting – Notifikasi -->
-                <HBox alignment="CENTER_LEFT" spacing="12"
-                      style="-fx-background-color: transparent; -fx-background-radius: 10; -fx-padding: 11 16; -fx-cursor: hand;"
-                      onMouseClicked="#handleMenuNotifikasi"
-                      onMouseEntered="#onSidebarItemHover"
-                      onMouseExited="#onSidebarItemExit">
-                    <Label text="🔔" style="-fx-font-size: 15px;"/>
-                    <Label text="Notifikasi"
-                           style="-fx-text-fill: #C8DDD0; -fx-font-size: 13px;"/>
-                </HBox>
-
-                <!-- Setting – Riwayat Chat -->
-                <HBox alignment="CENTER_LEFT" spacing="12"
-                      style="-fx-background-color: transparent; -fx-background-radius: 10; -fx-padding: 11 16; -fx-cursor: hand;"
-                      onMouseClicked="#handleMenuRiwayat"
-                      onMouseEntered="#onSidebarItemHover"
-                      onMouseExited="#onSidebarItemExit">
-                    <Label text="📜" style="-fx-font-size: 15px;"/>
-                    <Label text="Riwayat Chat"
-                           style="-fx-text-fill: #C8DDD0; -fx-font-size: 13px;"/>
-                </HBox>
-
-                <!-- Setting – Pengaturan -->
-                <TitledPane text="⚙️  Pengaturan" expanded="false"
-                            styleClass="sidebar-menu"
-                            style="-fx-text-fill: white; -fx-font-size: 13px; -fx-cursor: hand;">
-                    <VBox spacing="2" style="-fx-padding: 4 0 4 0;">
-                        <HBox alignment="CENTER_LEFT" spacing="10"
-                              style="-fx-background-color: transparent; -fx-background-radius: 8; -fx-padding: 8 12; -fx-cursor: hand;"
-                              onMouseClicked="#handleSettingBahasa"
-                              onMouseEntered="#onSidebarSubItemHover"
-                              onMouseExited="#onSidebarSubItemExit">
-                            <Label text="🌐" style="-fx-font-size: 13px;"/>
-                            <Label text="Bahasa" style="-fx-text-fill: #A8C8B0; -fx-font-size: 12px;"/>
-                        </HBox>
-                        <HBox alignment="CENTER_LEFT" spacing="10"
-                              style="-fx-background-color: transparent; -fx-background-radius: 8; -fx-padding: 8 12; -fx-cursor: hand;"
-                              onMouseClicked="#handleSettingNotifikasi"
-                              onMouseEntered="#onSidebarSubItemHover"
-                              onMouseExited="#onSidebarSubItemExit">
-                            <Label text="🔕" style="-fx-font-size: 13px;"/>
-                            <Label text="Notifikasi" style="-fx-text-fill: #A8C8B0; -fx-font-size: 12px;"/>
-                        </HBox>
-                        <HBox alignment="CENTER_LEFT" spacing="10"
-                              style="-fx-background-color: transparent; -fx-background-radius: 8; -fx-padding: 8 12; -fx-cursor: hand;"
-                              onMouseClicked="#handleSettingTampilan"
-                              onMouseEntered="#onSidebarSubItemHover"
-                              onMouseExited="#onSidebarSubItemExit">
-                            <Label text="🎨" style="-fx-font-size: 13px;"/>
-                            <Label text="Tampilan" style="-fx-text-fill: #A8C8B0; -fx-font-size: 12px;"/>
-                        </HBox>
-                        <HBox alignment="CENTER_LEFT" spacing="10"
-                              style="-fx-background-color: transparent; -fx-background-radius: 8; -fx-padding: 8 12; -fx-cursor: hand;"
-                              onMouseClicked="#handleHapusRiwayat"
-                              onMouseEntered="#onSidebarSubItemHover"
-                              onMouseExited="#onSidebarSubItemExit">
-                            <Label text="🗑️" style="-fx-font-size: 13px;"/>
-                            <Label text="Hapus Riwayat" style="-fx-text-fill: #A8C8B0; -fx-font-size: 12px;"/>
-                        </HBox>
-                        <HBox alignment="CENTER_LEFT" spacing="10"
-                              style="-fx-background-color: transparent; -fx-background-radius: 8; -fx-padding: 8 12; -fx-cursor: hand;"
-                              onMouseClicked="#handleSettingBantuan"
-                              onMouseEntered="#onSidebarSubItemHover"
-                              onMouseExited="#onSidebarSubItemExit">
-                            <Label text="❓" style="-fx-font-size: 13px;"/>
-                            <Label text="Bantuan / FAQ" style="-fx-text-fill: #A8C8B0; -fx-font-size: 12px;"/>
-                        </HBox>
-                    </VBox>
-                </TitledPane>
-
-            </VBox>
-
-            <!-- ── Bottom Actions ── -->
-            <VBox spacing="4" style="-fx-padding: 0 10 16 10; -fx-border-color: #2D5A3D; -fx-border-width: 1 0 0 0;">
-
-                <!-- Separator atas -->
-                <Separator style="-fx-padding: 8 0 4 0;"/>
-
-                <!-- Login Admin -->
-                <HBox alignment="CENTER_LEFT" spacing="12"
-                      style="-fx-background-color: transparent; -fx-background-radius: 10; -fx-padding: 11 16; -fx-cursor: hand;"
-                      onMouseClicked="#handleAdminLoginFromSidebar"
-                      onMouseEntered="#onSidebarItemHover"
-                      onMouseExited="#onSidebarItemExit">
-                    <Label text="🔐" style="-fx-font-size: 15px;"/>
-                    <Label text="Login Admin"
-                           style="-fx-text-fill: #D4A843; -fx-font-size: 13px; -fx-font-weight: bold;"/>
-                </HBox>
-
-                <!-- Keluar -->
-                <HBox alignment="CENTER_LEFT" spacing="12"
-                      style="-fx-background-color: transparent; -fx-background-radius: 10; -fx-padding: 11 16; -fx-cursor: hand;"
-                      onMouseClicked="#handleExit"
-                      onMouseEntered="#onSidebarExitHover"
-                      onMouseExited="#onSidebarItemExit">
-                    <Label text="🚪" style="-fx-font-size: 15px;"/>
-                    <Label text="Keluar"
-                           style="-fx-text-fill: #E07070; -fx-font-size: 13px;"/>
-                </HBox>
-
-            </VBox>
-        </VBox>
-    </left>
-
-    <!-- ═══════════════ MAIN CONTENT ═══════════════ -->
     <center>
         <VBox style="-fx-background-color: #F2EEE9;">
 
-            <!-- ── Top Bar ── -->
-            <HBox fx:id="menuBeranda" alignment="CENTER_LEFT" spacing="12"
+            <HBox fx:id="menuBeranda"
+                  alignment="CENTER_LEFT"
+                  spacing="12"
                   style="-fx-background-color: white; -fx-padding: 14 20;
                          -fx-border-color: #DDD6CC; -fx-border-width: 0 0 1 0;">
-
-                <!-- Tombol Toggle Sidebar -->
-                <Button onAction="#handleToggleSidebar"
-                        style="-fx-background-color: transparent; -fx-border-width: 0;
-                               -fx-cursor: hand; -fx-font-size: 18px; -fx-padding: 4 8;"
-                        text="☰"/>
 
                 <GridPane prefHeight="50.0" HBox.hgrow="ALWAYS">
                     <columnConstraints>
@@ -188,24 +40,23 @@
                         <RowConstraints maxHeight="31.0" minHeight="0.0" prefHeight="16.0" vgrow="SOMETIMES"/>
                     </rowConstraints>
                     <children>
-                        <!-- Logo/Icon -->
-                        <Label text="✝"
+                        <Label text="+"
                                style="-fx-font-size: 22px; -fx-text-fill: #D4A843;"
                                GridPane.columnIndex="0" GridPane.rowIndex="1"/>
-                        <!-- Nama sistem -->
+
                         <Label text="Faith Buddy"
                                style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #1A3A2A; -fx-padding: 0 0 0 8;"
                                GridPane.columnIndex="1" GridPane.rowIndex="1">
                             <font><Font name="System Bold" size="20.0"/></font>
                         </Label>
-                        <!-- Subtitle -->
+
                         <Label text="Asisten Informasi Gereja"
                                style="-fx-text-fill: #7A8A7A; -fx-font-size: 11px; -fx-padding: 0 0 0 8;"
                                GridPane.columnIndex="1" GridPane.rowIndex="2"/>
-                        <!-- Status online indicator -->
+
                         <HBox alignment="CENTER_RIGHT" spacing="6"
                               GridPane.columnIndex="2" GridPane.rowIndex="1">
-                            <Label text="●"
+                            <Label text="ON"
                                    style="-fx-text-fill: #4CAF50; -fx-font-size: 10px;"/>
                             <Label text="Online"
                                    style="-fx-text-fill: #7A8A7A; -fx-font-size: 11px;"/>
@@ -214,17 +65,16 @@
                 </GridPane>
             </HBox>
 
-            <!-- ── Ayat Harian Banner (FIXED, tidak ikut scroll) ── -->
             <VBox fx:id="ayatHarianBox"
                   style="-fx-background-color: #1A3A2A; -fx-padding: 12 20 10 20;
                          -fx-border-color: #D4A843; -fx-border-width: 0 0 2 0;">
                 <HBox alignment="CENTER_LEFT" spacing="10">
-                    <Label text="✦"
+                    <Label text="*"
                            style="-fx-text-fill: #D4A843; -fx-font-size: 14px;"/>
                     <Label text="FIRMAN TUHAN HARI INI"
                            style="-fx-text-fill: #D4A843; -fx-font-size: 10px;
-                                  -fx-font-weight: bold; -fx-letter-spacing: 2;"/>
-                    <Label text="✦"
+                                  -fx-font-weight: bold;"/>
+                    <Label text="*"
                            style="-fx-text-fill: #D4A843; -fx-font-size: 14px;"/>
                 </HBox>
                 <Label fx:id="lblAyatReferensi"
@@ -234,92 +84,48 @@
                 <Label fx:id="lblAyatIsi"
                        text=""
                        wrapText="true"
+                       maxWidth="Infinity"
                        style="-fx-text-fill: #D4EDD9; -fx-font-size: 12px;
-                              -fx-font-style: italic; -fx-padding: 2 0 0 0;"
-                       maxWidth="Infinity"/>
+                              -fx-font-style: italic; -fx-padding: 2 0 0 0;"/>
                 <Label fx:id="lblAyatKeterangan"
                        text=""
                        style="-fx-text-fill: #7AAA8A; -fx-font-size: 10px; -fx-padding: 2 0 0 0;"/>
             </VBox>
 
-            <!-- ── Chat Area (StackPane agar ayat tidak bergeser) ── -->
             <StackPane fx:id="chatOverlayPane" VBox.vgrow="ALWAYS">
                 <ScrollPane fx:id="chatScrollPane"
-                            style="-fx-background-color: transparent; -fx-background: transparent;"
                             fitToWidth="true"
                             vbarPolicy="AS_NEEDED"
-                            hbarPolicy="NEVER">
-                    <VBox fx:id="chatContainer" spacing="10"
+                            hbarPolicy="NEVER"
+                            style="-fx-background-color: transparent; -fx-background: transparent;">
+                    <VBox fx:id="chatContainer"
+                          spacing="10"
                           style="-fx-padding: 16 20;"/>
                 </ScrollPane>
             </StackPane>
 
-            <!-- ── Input Area ── -->
             <VBox style="-fx-background-color: white; -fx-border-color: #DDD6CC;
                          -fx-border-width: 1 0 0 0; -fx-padding: 10 16;">
-
-                <!-- Quick Reply Chips -->
-<!--                <HBox fx:id="quickReplyChips" spacing="6" style="-fx-padding: 0 0 8 0;">-->
-<!--                    <Button text="💧 Baptis"-->
-<!--                            onAction="#handleMenuPembaptisan"-->
-<!--                            style="-fx-background-color: #EAF3EA; -fx-text-fill: #1A3A2A;-->
-<!--                                   -fx-background-radius: 14; -fx-border-color: #C8DDD0;-->
-<!--                                   -fx-border-radius: 14; -fx-border-width: 1;-->
-<!--                                   -fx-padding: 5 12; -fx-cursor: hand; -fx-font-size: 11px;"/>-->
-<!--                    <Button text="💍 Pernikahan"-->
-<!--                            onAction="#handleMenuPernikahan"-->
-<!--                            style="-fx-background-color: #EAF3EA; -fx-text-fill: #1A3A2A;-->
-<!--                                   -fx-background-radius: 14; -fx-border-color: #C8DDD0;-->
-<!--                                   -fx-border-radius: 14; -fx-border-width: 1;-->
-<!--                                   -fx-padding: 5 12; -fx-cursor: hand; -fx-font-size: 11px;"/>-->
-<!--                    <Button text="📖 SIDI"-->
-<!--                            onAction="#handleMenuSidi"-->
-<!--                            style="-fx-background-color: #EAF3EA; -fx-text-fill: #1A3A2A;-->
-<!--                                   -fx-background-radius: 14; -fx-border-color: #C8DDD0;-->
-<!--                                   -fx-border-radius: 14; -fx-border-width: 1;-->
-<!--                                   -fx-padding: 5 12; -fx-cursor: hand; -fx-font-size: 11px;"/>-->
-<!--                    <Button text="🤝 Konseling"-->
-<!--                            onAction="#handleMenuKonseling"-->
-<!--                            style="-fx-background-color: #EAF3EA; -fx-text-fill: #1A3A2A;-->
-<!--                                   -fx-background-radius: 14; -fx-border-color: #C8DDD0;-->
-<!--                                   -fx-border-radius: 14; -fx-border-width: 1;-->
-<!--                                   -fx-padding: 5 12; -fx-cursor: hand; -fx-font-size: 11px;"/>-->
-<!--                    <Button text="📅 Jadwal"-->
-<!--                            onAction="#handleMenuJadwal"-->
-<!--                            style="-fx-background-color: #EAF3EA; -fx-text-fill: #1A3A2A;-->
-<!--                                   -fx-background-radius: 14; -fx-border-color: #C8DDD0;-->
-<!--                                   -fx-border-radius: 14; -fx-border-width: 1;-->
-<!--                                   -fx-padding: 5 12; -fx-cursor: hand; -fx-font-size: 11px;"/>-->
-<!--                    <Button text="📞 Kontak"-->
-<!--                            onAction="#handleMenuKontak"-->
-<!--                            style="-fx-background-color: #EAF3EA; -fx-text-fill: #1A3A2A;-->
-<!--                                   -fx-background-radius: 14; -fx-border-color: #C8DDD0;-->
-<!--                                   -fx-border-radius: 14; -fx-border-width: 1;-->
-<!--                                   -fx-padding: 5 12; -fx-cursor: hand; -fx-font-size: 11px;"/>-->
-<!--                </HBox>-->
-
-                <!-- Input pesan -->
                 <HBox alignment="CENTER" spacing="10">
                     <HBox alignment="CENTER"
+                          HBox.hgrow="ALWAYS"
                           style="-fx-background-color: #F2EEE9; -fx-background-radius: 20;
                                  -fx-padding: 6 14; -fx-border-color: #DDD6CC;
-                                 -fx-border-width: 1; -fx-border-radius: 20;"
-                          HBox.hgrow="ALWAYS">
+                                 -fx-border-width: 1; -fx-border-radius: 20;">
                         <TextArea fx:id="messageInput"
                                   prefRowCount="1"
                                   promptText="Ketik pertanyaan Anda (mis: syarat baptis, jam ibadah)..."
+                                  HBox.hgrow="ALWAYS"
                                   style="-fx-background-color: transparent; -fx-border-width: 0;
-                                         -fx-font-size: 13px; -fx-text-fill: #2A2A2A;"
-                                  HBox.hgrow="ALWAYS"/>
+                                         -fx-font-size: 13px; -fx-text-fill: #2A2A2A;"/>
                     </HBox>
                     <Button onAction="#sendMessage"
+                            text="Kirim"
                             style="-fx-background-color: #1A3A2A; -fx-text-fill: #D4A843;
-                                   -fx-font-size: 16px; -fx-font-weight: bold;
-                                   -fx-background-radius: 20; -fx-padding: 10 20; -fx-cursor: hand;"
-                            text="➤"/>
+                                   -fx-font-size: 13px; -fx-font-weight: bold;
+                                   -fx-background-radius: 20; -fx-padding: 10 18; -fx-cursor: hand;"/>
                 </HBox>
             </VBox>
         </VBox>
     </center>
-
 </BorderPane>

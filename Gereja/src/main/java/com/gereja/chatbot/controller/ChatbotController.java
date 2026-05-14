@@ -349,7 +349,25 @@ public class ChatbotController implements Initializable {
         showTypingThenRespond(resp);
     }
 
-    @FXML private void handleMenuAboutUs() {
+    @FXML private void handleMenuAboutUs(javafx.scene.input.MouseEvent event) {
+        if (event != null) {
+            try {
+                FXMLLoader loader = new FXMLLoader(
+                        getClass().getResource("/com/gereja/chatbot/fxml/TentangKami.fxml")
+                );
+
+                Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+                Scene scene = new Scene(loader.load());
+
+                stage.setScene(scene);
+                stage.show();
+                return;
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
         addUserMessage("ℹ️ Informasi Tentang Gereja");
         appendBotMessage(ChatMessage.botMessage(
                 "🏛️ Tentang Faith Buddy & GKJ Ngupasan\n\n" +

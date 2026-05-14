@@ -79,6 +79,19 @@
                                -fx-border-radius: 5;
                                -fx-cursor: hand;" />
 
+                <Button text="TENTANG KAMI"
+                        onAction="#handleOpenAbout"
+                        prefWidth="260"
+                        prefHeight="45"
+                        style="-fx-background-color: #203F2E;
+                               -fx-text-fill: #E8F0EB;
+                               -fx-font-weight: bold;
+                               -fx-font-size: 14px;
+                               -fx-background-radius: 5;
+                               -fx-border-color: #D4A843;
+                               -fx-border-radius: 5;
+                               -fx-cursor: hand;" />
+
                 <!-- ADMIN BUTTON -->
                 <Button text="LOGIN ADMIN"
                         onAction="#handleAdminLogin"

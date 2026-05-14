@@ -45,6 +45,24 @@ public class LandingController {
     }
 
     @FXML
+    public void handleOpenAbout(ActionEvent event) {
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/com/gereja/chatbot/fxml/TentangKami.fxml")
+            );
+
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            Scene scene = new Scene(loader.load());
+
+            stage.setScene(scene);
+            stage.show();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
     public void handleAdminLogin(ActionEvent event) {
         try {
             FXMLLoader loader = new FXMLLoader(
