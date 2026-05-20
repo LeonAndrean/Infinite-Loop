@@ -5,13 +5,18 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -26,13 +31,13 @@ public class AdminDashboardController {
     @FXML private Label lblAdminName;
 
     // ─── Nav Buttons ───
-    @FXML private Button btnNavInfo, btnNavPelayanan, btnNavKataKunci, btnNavAyat, btnNavAdmin;
+    @FXML private Button btnNavInfo, btnNavPelayanan, btnNavKataKunci, btnNavAyat, btnNavKalender, btnNavAdmin;
 
     // ─── Stats ───
     @FXML private Label lblTotalChat, lblTotalKataKunci, lblTotalAyat;
 
     // ─── Tab Panels ───
-    @FXML private VBox tabInfo, tabPelayanan, tabKataKunci, tabAyat, tabAdmin;
+    @FXML private VBox tabInfo, tabPelayanan, tabKataKunci, tabAyat, tabKalender, tabAdmin;
 
     // ─── Info Gereja ───
     @FXML private TextField txtInfoKunci, txtInfoNilai;
@@ -69,6 +74,17 @@ public class AdminDashboardController {
     @FXML private TableColumn<Map<String,String>,Void> colAyatAksi;
     private Integer editingAyatId = null;
 
+    // ─── Kalender Kegiatan ───
+    @FXML private GridPane calendarGrid;
+    @FXML private VBox calendarEventList;
+    @FXML private Label lblCalendarMonth, lblCalendarSelectedDate, lblCalendarSummary;
+    private YearMonth currentCalendarMonth = YearMonth.now();
+    private static final DateTimeFormatter FMT_DATE_DB = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    private static final DateTimeFormatter FMT_MONTH_ID =
+            DateTimeFormatter.ofPattern("MMMM yyyy", new java.util.Locale("id", "ID"));
+    private static final DateTimeFormatter FMT_DATE_ID =
+            DateTimeFormatter.ofPattern("EEEE, dd MMMM yyyy", new java.util.Locale("id", "ID"));
+
     // ─── Kelola Admin ───
     @FXML private TextField txtAdminUser, txtAdminNama;
     @FXML private PasswordField txtAdminPw, txtAdminPwKonfirm;
@@ -94,6 +110,7 @@ public class AdminDashboardController {
         setupPelayananTable();
         setupKataKunciTable();
         setupAyatTable();
+        setupKalender();
         setupAdminTable();
         muatSemuaData();
         showTabInfo();
@@ -112,10 +129,11 @@ public class AdminDashboardController {
     @FXML public void showTabPelayanan()  { switchTab(tabPelayanan,  btnNavPelayanan); }
     @FXML public void showTabKataKunci()  { switchTab(tabKataKunci,  btnNavKataKunci); }
     @FXML public void showTabAyat()       { switchTab(tabAyat,       btnNavAyat); loadPreviewAyat(); }
+    @FXML public void showTabKalender()   { switchTab(tabKalender,   btnNavKalender); renderKalender(); }
     @FXML public void showTabAdmin()      { switchTab(tabAdmin,      btnNavAdmin); }
 
     private void switchTab(VBox active, Button activeBtn) {
-        for (VBox v : List.of(tabInfo, tabPelayanan, tabKataKunci, tabAyat, tabAdmin)) {
+        for (VBox v : List.of(tabInfo, tabPelayanan, tabKataKunci, tabAyat, tabKalender, tabAdmin)) {
             v.setVisible(false); v.setManaged(false);
         }
         active.setVisible(true); active.setManaged(true);
@@ -126,7 +144,7 @@ public class AdminDashboardController {
         String inactiveStyle = "-fx-background-color: transparent; -fx-text-fill: #C8DDD0; " +
                 "-fx-background-radius: 8; -fx-padding: 10 14; -fx-alignment: CENTER_LEFT; " +
                 "-fx-cursor: hand; -fx-font-size: 13px;";
-        for (Button b : List.of(btnNavInfo, btnNavPelayanan, btnNavKataKunci, btnNavAyat, btnNavAdmin))
+        for (Button b : List.of(btnNavInfo, btnNavPelayanan, btnNavKataKunci, btnNavAyat, btnNavKalender, btnNavAdmin))
             b.setStyle(inactiveStyle);
         activeBtn.setStyle(activeStyle);
     }
@@ -140,6 +158,7 @@ public class AdminDashboardController {
         muatTblPelayanan();
         muatTblKataKunci();
         muatTblAyat();
+        renderKalender();
         muatTblAdmin();
         muatStatistik();
     }
@@ -386,6 +405,214 @@ public class AdminDashboardController {
     private void showAyatFormMsg(String msg) {
         lblAyatFormMsg.setText(msg);
         lblAyatFormMsg.setVisible(true); lblAyatFormMsg.setManaged(true);
+    }
+
+    // ══════════════════════════════════════════════════════════
+    //  KALENDER KEGIATAN
+    // ══════════════════════════════════════════════════════════
+
+    private void setupKalender() {
+        calendarGrid.getColumnConstraints().clear();
+        calendarGrid.getRowConstraints().clear();
+
+        for (int i = 0; i < 7; i++) {
+            ColumnConstraints cc = new ColumnConstraints();
+            cc.setHgrow(Priority.ALWAYS);
+            cc.setPercentWidth(100.0 / 7);
+            calendarGrid.getColumnConstraints().add(cc);
+        }
+
+        for (int i = 0; i < 6; i++) {
+            RowConstraints rc = new RowConstraints();
+            rc.setVgrow(Priority.ALWAYS);
+            rc.setMinHeight(72);
+            calendarGrid.getRowConstraints().add(rc);
+        }
+    }
+
+    @FXML private void kalenderBulanSebelumnya() {
+        currentCalendarMonth = currentCalendarMonth.minusMonths(1);
+        renderKalender();
+    }
+
+    @FXML private void kalenderBulanBerikutnya() {
+        currentCalendarMonth = currentCalendarMonth.plusMonths(1);
+        renderKalender();
+    }
+
+    @FXML private void kalenderHariIni() {
+        currentCalendarMonth = YearMonth.now();
+        renderKalender();
+        tampilkanDetailTanggal(LocalDate.now(), getEventsForDate(LocalDate.now()));
+    }
+
+    private void renderKalender() {
+        if (calendarGrid == null) return;
+
+        calendarGrid.getChildren().clear();
+        lblCalendarMonth.setText(currentCalendarMonth.format(FMT_MONTH_ID).toUpperCase());
+
+        LocalDate firstDay = currentCalendarMonth.atDay(1);
+        LocalDate today = LocalDate.now();
+        int startCol = firstDay.getDayOfWeek().getValue() - 1;
+        int daysInMonth = currentCalendarMonth.lengthOfMonth();
+        String startDate = currentCalendarMonth.atDay(1).format(FMT_DATE_DB);
+        String endDate = currentCalendarMonth.atEndOfMonth().format(FMT_DATE_DB);
+        Map<String, List<Map<String, String>>> eventsByDate =
+                DatabaseHelper.getJadwalBulan(startDate, endDate);
+
+        int col = startCol;
+        int row = 0;
+        for (int day = 1; day <= daysInMonth; day++) {
+            LocalDate date = currentCalendarMonth.atDay(day);
+            List<Map<String, String>> events =
+                    eventsByDate.getOrDefault(date.format(FMT_DATE_DB), List.of());
+
+            calendarGrid.add(buildCalendarDayCell(date, today, events), col, row);
+
+            col++;
+            if (col == 7) {
+                col = 0;
+                row++;
+            }
+        }
+
+        tampilkanRingkasanBulan(eventsByDate);
+    }
+
+    private VBox buildCalendarDayCell(LocalDate date, LocalDate today, List<Map<String, String>> events) {
+        VBox cell = new VBox(4);
+        cell.setPadding(new Insets(8));
+        cell.setAlignment(Pos.TOP_LEFT);
+        cell.setMinHeight(72);
+        cell.setMaxWidth(Double.MAX_VALUE);
+
+        boolean isToday = date.equals(today);
+        boolean hasEvent = !events.isEmpty();
+        String bg = isToday ? "#B8E0C8" : hasEvent ? "#FDF3D0" : "#F7FBF8";
+        String border = isToday ? "#2D7A4F" : hasEvent ? "#D4A843" : "#DCE8E0";
+        cell.setStyle(calendarCellStyle(bg, border));
+        cell.setOnMouseEntered(e -> cell.setStyle(calendarCellStyle(hasEvent ? "#F5E0A0" : "#E8F4EC", "#2D5A3D")));
+        cell.setOnMouseExited(e -> cell.setStyle(calendarCellStyle(bg, border)));
+        cell.setOnMouseClicked(e -> tampilkanDetailTanggal(date, events));
+
+        HBox topRow = new HBox();
+        topRow.setAlignment(Pos.CENTER_LEFT);
+        Label lblDay = new Label(String.valueOf(date.getDayOfMonth()));
+        lblDay.setStyle("-fx-text-fill: #1A3A2A; -fx-font-size: 13px; -fx-font-weight: "
+                + (isToday ? "bold" : "normal") + ";");
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+        topRow.getChildren().addAll(lblDay, spacer);
+
+        if (hasEvent) {
+            Label badge = new Label(String.valueOf(events.size()));
+            badge.setStyle("-fx-background-color: #D4A843; -fx-text-fill: #122A1E;"
+                    + "-fx-font-size: 10px; -fx-font-weight: bold; -fx-background-radius: 10;"
+                    + "-fx-min-width: 20; -fx-min-height: 20; -fx-alignment: CENTER;");
+            topRow.getChildren().add(badge);
+        }
+
+        cell.getChildren().add(topRow);
+        for (Map<String, String> ev : events.stream().limit(2).toList()) {
+            String title = ev.getOrDefault("nama_kegiatan", "Kegiatan");
+            Label eventLabel = new Label(title.length() > 18 ? title.substring(0, 17) + "..." : title);
+            eventLabel.setMaxWidth(Double.MAX_VALUE);
+            eventLabel.setStyle("-fx-background-color: rgba(212,168,67,0.22); -fx-text-fill: #1A3A2A;"
+                    + "-fx-font-size: 9px; -fx-background-radius: 3; -fx-padding: 2 5;");
+            cell.getChildren().add(eventLabel);
+        }
+
+        if (events.size() > 2) {
+            Label more = new Label("+" + (events.size() - 2) + " kegiatan");
+            more.setStyle("-fx-text-fill: #7A6A2A; -fx-font-size: 9px; -fx-font-weight: bold;");
+            cell.getChildren().add(more);
+        }
+
+        return cell;
+    }
+
+    private String calendarCellStyle(String bg, String border) {
+        return "-fx-background-color: " + bg + ";"
+                + "-fx-background-radius: 4;"
+                + "-fx-border-color: " + border + ";"
+                + "-fx-border-radius: 4;"
+                + "-fx-border-width: 1;"
+                + "-fx-cursor: hand;";
+    }
+
+    private void tampilkanRingkasanBulan(Map<String, List<Map<String, String>>> eventsByDate) {
+        int total = eventsByDate.values().stream().mapToInt(List::size).sum();
+        lblCalendarSelectedDate.setText("Ringkasan "
+                + currentCalendarMonth.format(FMT_MONTH_ID));
+        lblCalendarSummary.setText(total == 0
+                ? "Belum ada kegiatan pada bulan ini."
+                : total + " kegiatan terjadwal pada " + eventsByDate.size() + " tanggal.");
+
+        calendarEventList.getChildren().clear();
+        List<Map<String, String>> allEvents = new ArrayList<>();
+        eventsByDate.values().forEach(allEvents::addAll);
+        if (allEvents.isEmpty()) {
+            calendarEventList.getChildren().add(buildEmptyCalendarMessage("Tidak ada kegiatan bulan ini."));
+            return;
+        }
+        allEvents.stream().limit(8).forEach(ev -> calendarEventList.getChildren().add(buildEventCard(ev)));
+    }
+
+    private void tampilkanDetailTanggal(LocalDate date, List<Map<String, String>> events) {
+        lblCalendarSelectedDate.setText(date.format(FMT_DATE_ID));
+        lblCalendarSummary.setText(events.isEmpty()
+                ? "Tidak ada kegiatan gereja pada tanggal ini."
+                : events.size() + " kegiatan terjadwal.");
+
+        calendarEventList.getChildren().clear();
+        if (events.isEmpty()) {
+            calendarEventList.getChildren().add(buildEmptyCalendarMessage("Tanggal ini masih kosong."));
+            return;
+        }
+        events.forEach(ev -> calendarEventList.getChildren().add(buildEventCard(ev)));
+    }
+
+    private List<Map<String, String>> getEventsForDate(LocalDate date) {
+        return DatabaseHelper.getJadwalBulan(date.format(FMT_DATE_DB), date.format(FMT_DATE_DB))
+                .getOrDefault(date.format(FMT_DATE_DB), List.of());
+    }
+
+    private Label buildEmptyCalendarMessage(String message) {
+        Label label = new Label(message);
+        label.setWrapText(true);
+        label.setStyle("-fx-text-fill: #7A9A8A; -fx-font-size: 12px; -fx-padding: 8;");
+        return label;
+    }
+
+    private VBox buildEventCard(Map<String, String> event) {
+        VBox card = new VBox(4);
+        card.setStyle("-fx-background-color: #F7FBF8; -fx-background-radius: 4;"
+                + "-fx-border-color: #DCE8E0; -fx-border-radius: 4; -fx-padding: 10;");
+
+        Label title = new Label(event.getOrDefault("nama_kegiatan", "Kegiatan"));
+        title.setWrapText(true);
+        title.setStyle("-fx-text-fill: #1A3A2A; -fx-font-size: 12px; -fx-font-weight: bold;");
+
+        String time = event.getOrDefault("jam_mulai", "");
+        String endTime = event.getOrDefault("jam_selesai", "");
+        if (!time.isBlank() && !endTime.isBlank()) time += " - " + endTime;
+
+        Label meta = new Label(String.join("  |  ",
+                List.of(
+                        event.getOrDefault("tanggal", "-"),
+                        time.isBlank() ? "Jam belum diatur" : time,
+                        event.getOrDefault("lokasi", "Lokasi belum diatur")
+                )));
+        meta.setWrapText(true);
+        meta.setStyle("-fx-text-fill: #667; -fx-font-size: 10px;");
+
+        Label category = new Label(event.getOrDefault("kategori", "UMUM"));
+        category.setStyle("-fx-background-color: #D4A843; -fx-text-fill: #122A1E;"
+                + "-fx-font-size: 9px; -fx-font-weight: bold; -fx-background-radius: 3; -fx-padding: 2 6;");
+
+        card.getChildren().addAll(title, meta, category);
+        return card;
     }
 
     // ══════════════════════════════════════════════════════════
