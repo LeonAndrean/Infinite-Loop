@@ -1,6 +1,7 @@
 package com.gereja.chatbot.service;
 
 import com.gereja.chatbot.database.DatabaseHelper;
+import com.gereja.chatbot.database.IbadahDatabaseHelper;
 import com.gereja.chatbot.model.ChatMessage;
 import com.gereja.chatbot.model.ChatMessage.StepInfo;
 
@@ -11,23 +12,14 @@ import java.time.temporal.TemporalAdjusters;
 import java.util.*;
 
 /**
- * ChatbotService – Logika utama chatbot Faith Buddy.
- * Semua data dinamis (syarat, biaya, kontak, info gereja)
- * diambil dari database. Tidak ada data dummy/hardcoded.
- *
- * Alur pencarian jawaban:
- * 1. Deteksi kata kunci khusus (salam, terima kasih, ibadah, dll)
- * 2. Deteksi topik pelayanan (baptis, nikah, sidi, konseling)
- * 3. Cari di tabel kata_kunci_qa (DB) — smart multi-pass matching
- * 4. Fallback kontekstual berdasarkan state
+ * ChatbotService – Logika utama chatbot Faith Buddy dengan dukungan MULTI-INTENT
  */
 public class ChatbotService {
 
-    // ── Keyword lists ──────────────────────────────────────────
     private static final List<String> KW_BAPTIS    = List.of("baptis","baptisan","pembaptisan","dibaptis");
     private static final List<String> KW_NIKAH     = List.of("nikah","pernikahan","menikah","wedding","kawin","pranikah","pra-nikah","pemberkatan");
     private static final List<String> KW_SIDI      = List.of("sidi","peneguhan","katekisasi");
-    private static final List<String> KW_KONSELING = List.of("konseling","konsultasi","bimbingan","pendeta","pastoral","curhat");
+    private static final List<String> KW_KONSELING = List.of("konseling","konsultasi","bimbingan","pastoral","curhat");
     private static final List<String> KW_JADWAL    = List.of("jadwal","pendaftaran","daftar","kapan","tanggal","agenda","acara","bulan ini");
     private static final List<String> KW_SALAM     = List.of("halo","hello","hi","selamat","pagi","siang","sore","malam","shalom","hai","hey","oi","hei");
     private static final List<String> KW_MAKASIH   = List.of("terima kasih","makasih","thanks","tq","thx","tengkyu");
@@ -35,20 +27,30 @@ public class ChatbotService {
     private static final List<String> KW_KONTAK    = List.of("kontak","hubungi","telepon","tlp","telp","alamat","lokasi","email","whatsapp","wa","nomor");
     private static final List<String> KW_BIAYA     = List.of("biaya","bayar","harga","tarif","gratis","berapa","fee","bayaran");
     private static final List<String> KW_IBADAH    = List.of("ibadah minggu","kebaktian","jam ibadah","ibadah anak","ibadah pemuda","kebaktian minggu");
-    private static final List<String> KW_INFO_GEREJA = List.of("visi","misi","sejarah","pendeta","majelis","rekening","donasi","profil gereja");
-    private static final List<String> KW_PROFIL    = List.of("tentang gereja","siapa","gereja ini","gkj","faith buddy","apa itu");
+    private static final List<String> KW_PROFIL    =  List.of("tentang gereja","gereja ini","gkj","faith buddy","apa itu");
+    private static final List<String> KW_TEMA =
+            List.of("tema", "tema ibadah", "topik ibadah");
+
+    private static final List<String> KW_AYAT =
+            List.of("ayat", "ayat alkitab", "firman tuhan");
+
+    private static final List<String> KW_RENUNGAN =
+            List.of("renungan", "renungan minggu");
+
+    private static final List<String> KW_WAKTU_IBADAH =
+            List.of("jadwal ibadah", "jam ibadah", "waktu ibadah");
+    private static final List<String> KW_PENDETA   = List.of("pendeta", "siapa pendeta", "pelayan firman", "pdt");
 
     public enum State { AWAL, BAPTIS, NIKAH, SIDI, KONSELING, JADWAL }
     private State state = State.AWAL;
+
+    private LocalDate lastRequestedIbadahDate = null;
+    private Map<String, String> lastIbadahData = null;
 
     private static final DateTimeFormatter FMT_PANJANG =
             DateTimeFormatter.ofPattern("EEEE, dd MMMM yyyy", new Locale("id", "ID"));
     private static final DateTimeFormatter FMT_PENDEK  =
             DateTimeFormatter.ofPattern("dd MMMM yyyy", new Locale("id", "ID"));
-
-    // ══════════════════════════════════════════════════════════
-    //  PROSES INPUT UTAMA
-    // ══════════════════════════════════════════════════════════
 
     public List<ChatMessage> processInput(String input) {
         if (input == null || input.isBlank()) return Collections.emptyList();
@@ -56,33 +58,174 @@ public class ChatbotService {
 
         DatabaseHelper.simpanChat("USER", input.trim());
 
+        // ── 1. DETEKSI MULTI-INTENT ──
+        List<String> matchedParts = new ArrayList<>();
+
+        if (containsAny(lower, KW_PENDETA)) {
+            matchedParts.add(infoDetailPendeta());
+        }
+
+        if (containsAny(lower, List.of("ibadah minggu", "ibadah mingguan", "kebaktian minggu", "renungan minggu", "tema ibadah", "renungan ibadah"))) {
+            matchedParts.add(handleIbadahMingguanQuery(lower));
+        }
+
+        if (containsAny(lower, KW_BAPTIS)) {
+            if (containsAny(lower, KW_SYARAT)) {
+                matchedParts.add(syaratBaptis().getContent());
+            } else if (containsAny(lower, KW_JADWAL)) {
+                matchedParts.add(jadwalBaptis().getContent());
+            } else if (containsAny(lower, KW_BIAYA)) {
+                matchedParts.add(biaya("BAPTIS").getContent());
+            } else {
+                matchedParts.add(formatStepMessageAsText(infoBaptis()));
+            }
+        }
+
+        if (containsAny(lower, KW_NIKAH)) {
+            if (containsAny(lower, KW_SYARAT)) {
+                matchedParts.add(syaratNikah().getContent());
+            } else if (containsAny(lower, KW_JADWAL)) {
+                matchedParts.add(jadwalNikah().getContent());
+            } else if (containsAny(lower, KW_BIAYA)) {
+                matchedParts.add(biaya("PERNIKAHAN").getContent());
+            } else {
+                matchedParts.add(formatStepMessageAsText(infoNikah()));
+            }
+        }
+
+        if (containsAny(lower, KW_SIDI)) {
+            if (containsAny(lower, KW_SYARAT)) {
+                matchedParts.add(syaratSidi().getContent());
+            } else if (containsAny(lower, KW_JADWAL)) {
+                matchedParts.add(jadwalSidi().getContent());
+            } else if (containsAny(lower, KW_BIAYA)) {
+                matchedParts.add(biaya("SIDI").getContent());
+            } else {
+                matchedParts.add(formatStepMessageAsText(infoSidi()));
+            }
+        }
+
+        if (containsAny(lower, KW_KONSELING)) {
+            if (containsAny(lower, KW_JADWAL)) {
+                matchedParts.add(jadwalKonseling().getContent());
+            } else if (containsAny(lower, KW_BIAYA)) {
+                matchedParts.add(biaya("KONSELING").getContent());
+            } else {
+                matchedParts.add(formatStepMessageAsText(infoKonseling()));
+            }
+        }
+
+        if (containsAny(lower, KW_KONTAK) && !containsAny(lower, KW_BAPTIS) && !containsAny(lower, KW_NIKAH) && !containsAny(lower, KW_SIDI)) {
+            matchedParts.add(infoKontak().getContent());
+        }
+
+        if ((containsAny(lower, KW_PROFIL) || lower.matches(".*\\b(profil|tentang|siapa|sejarah)\\b.*"))
+                && !containsAny(lower, KW_BAPTIS) && !containsAny(lower, KW_NIKAH) && !containsAny(lower, KW_SIDI) && !containsAny(lower, KW_PENDETA)) {
+            String jawabanKK = DatabaseHelper.cariJawabanDariKataKunci(lower);
+            if (jawabanKK != null) {
+                matchedParts.add(jawabanKK);
+            } else {
+                matchedParts.add(infoProfilGereja().getContent());
+            }
+        }
+
+        // Jika terdeteksi MULTI-INTENT (2 atau lebih pertanyaan sekaligus)
+        if (matchedParts.size() >= 2) {
+            StringBuilder combined = new StringBuilder();
+            for (int i = 0; i < matchedParts.size(); i++) {
+                combined.append(matchedParts.get(i));
+                if (i < matchedParts.size() - 1) {
+//                    combined.append("\n\n═════════════════════════════\n\n");
+                }
+            }
+//            ChatMessage respons = ChatMessage.botMessage(combined.toString());
+//            DatabaseHelper.simpanChat("BOT", respons.getContent());
+//            return List.of(respons);
+        }
+
+        // ── 2. LOGIKA SINGLE-INTENT STANDARD (FALLBACK) ──
         ChatMessage respons;
 
-        // ── 1. Salam ──
         if (containsAny(lower, KW_SALAM) && !containsAny(lower, KW_JADWAL)
-                && !containsAny(lower, KW_BAPTIS) && !containsAny(lower, KW_NIKAH)) {
+                && !containsAny(lower, KW_BAPTIS) && !containsAny(lower, KW_NIKAH) && !containsAny(lower, KW_PENDETA) && !containsAny(lower, KW_IBADAH)) {
             state = State.AWAL;
             respons = pesanSalam();
 
-            // ── 2. Terima Kasih ──
         } else if (containsAny(lower, KW_MAKASIH)) {
             respons = pesanMakasih();
 
-            // ── 3. Profil/Info Umum Gereja ──
+        } else if (containsAny(lower, KW_PENDETA)) {
+            respons = ChatMessage.botMessage(infoDetailPendeta());
+
+        } else if (containsAny(lower, List.of("ibadah minggu", "ibadah mingguan", "kebaktian minggu", "renungan minggu", "tema ibadah", "renungan ibadah"))) {
+            respons = ChatMessage.botMessage(handleIbadahMingguanQuery(lower));
+
         } else if (containsAny(lower, KW_PROFIL) || lower.matches(".*\\b(profil|tentang|siapa|sejarah)\\b.*")) {
-            // Cek kata kunci DB dulu
             String jawabanKK = DatabaseHelper.cariJawabanDariKataKunci(lower);
             if (jawabanKK != null) {
                 respons = ChatMessage.botMessage(jawabanKK);
             } else {
                 respons = infoProfilGereja();
             }
+            // ===== CONTEXT FOLLOW-UP IBADAH =====
 
-            // ── 4. Ibadah ──
+            if (lastIbadahData != null) {
+
+                // siapa pemimpin ibadah?
+                if (lower.contains("pimpin")
+                        || lower.contains("pemimpin")
+                        || lower.contains("pelayan firman")) {
+
+                    return List.of(ChatMessage.botMessage(
+                            "👤 Pelayan Firman Ibadah:\n"
+                                    + lastIbadahData.get("pemimpin")
+                    ));
+                }
+
+                // ayat renungan
+                if (lower.contains("ayat")) {
+
+                    return List.of(ChatMessage.botMessage(
+                            "📖 Ayat Alkitab:\n"
+                                    + lastIbadahData.get("ayat")
+                    ));
+                }
+
+                // tema ibadah
+                if (lower.contains("tema")) {
+
+                    return List.of(ChatMessage.botMessage(
+                            "🌟 Tema Ibadah:\n"
+                                    + lastIbadahData.get("tema")
+                    ));
+                }
+
+                // renungan
+                if (lower.contains("renungan")) {
+
+                    return List.of(ChatMessage.botMessage(
+                            "✍️ Renungan:\n"
+                                    + lastIbadahData.get("renungan")
+                    ));
+                }
+
+                // jadwal
+                if (lower.contains("jam")
+                        || lower.contains("jadwal")
+                        || lower.contains("tanggal")) {
+
+                    return List.of(ChatMessage.botMessage(
+                            "📅 Jadwal Ibadah:\n"
+                                    + lastRequestedIbadahDate.format(FMT_PANJANG)
+                                    + "\n🕖 "
+                                    + lastIbadahData.get("jam")
+                    ));
+                }
+            }
+
         } else if (containsAny(lower, KW_IBADAH)) {
             respons = infoIbadah();
 
-            // ── 5. Baptis ──
         } else if (containsAny(lower, KW_BAPTIS)) {
             state = State.BAPTIS;
             if      (containsAny(lower, KW_SYARAT)) respons = syaratBaptis();
@@ -90,7 +233,6 @@ public class ChatbotService {
             else if (containsAny(lower, KW_BIAYA))  respons = biaya("BAPTIS");
             else                                      respons = infoBaptis();
 
-            // ── 6. Pernikahan ──
         } else if (containsAny(lower, KW_NIKAH)) {
             state = State.NIKAH;
             if      (containsAny(lower, KW_SYARAT)) respons = syaratNikah();
@@ -98,7 +240,6 @@ public class ChatbotService {
             else if (containsAny(lower, KW_BIAYA))  respons = biaya("PERNIKAHAN");
             else                                      respons = infoNikah();
 
-            // ── 7. SIDI ──
         } else if (containsAny(lower, KW_SIDI)) {
             state = State.SIDI;
             if      (containsAny(lower, KW_SYARAT)) respons = syaratSidi();
@@ -106,33 +247,27 @@ public class ChatbotService {
             else if (containsAny(lower, KW_BIAYA))  respons = biaya("SIDI");
             else                                      respons = infoSidi();
 
-            // ── 8. Konseling ──
         } else if (containsAny(lower, KW_KONSELING)) {
             state = State.KONSELING;
             if      (containsAny(lower, KW_JADWAL)) respons = jadwalKonseling();
             else if (containsAny(lower, KW_BIAYA))  respons = biaya("KONSELING");
             else                                      respons = infoKonseling();
 
-            // ── 9. Biaya Umum ──
         } else if (containsAny(lower, KW_BIAYA)) {
             respons = biaya(state == State.AWAL ? "SEMUA" : state.name());
 
-            // ── 10. Jadwal ──
         } else if (containsAny(lower, KW_JADWAL)) {
             state = State.JADWAL;
             respons = infoJadwalUmum();
 
-            // ── 11. Kontak ──
         } else if (containsAny(lower, KW_KONTAK)) {
             respons = infoKontak();
 
-            // ── 12. Info Gereja dari DB (kata kunci Q&A) ──
         } else {
             String jawabanKK = DatabaseHelper.cariJawabanDariKataKunci(lower);
             if (jawabanKK != null) {
                 respons = ChatMessage.botMessage(jawabanKK);
             } else {
-                // Coba ekstrak kata kunci dan cari lagi
                 String kk = DatabaseHelper.ekstrakKataKunci(lower);
                 if (kk != null && !kk.equals(lower)) {
                     String jawabanEkstrak = DatabaseHelper.cariJawabanDariKataKunci(kk);
@@ -146,29 +281,24 @@ public class ChatbotService {
                 }
             }
         }
-        // --- Bagian akhir dari method processInput ---
 
-        // LOGIKA PERBAIKAN:
-        // Cek apakah pesan user masuk ke fallback (balasanKontekstual)
-        // Jika chatbot hanya memberikan balasan default/kontekstual, berarti pertanyaan aslinya tidak terjawab
+        // ── 3. ERROR HANDLING / FALLBACK JIKA PESAN TIDAK TERJAWAB ──
         if (respons == null || respons.getContent() == null ||
                 respons.getContent().contains("Maaf, saya belum menemukan jawaban") ||
                 respons.getContent().contains("Maaf, saya belum memiliki informasi")) {
 
             try {
-                // Simpan pertanyaan asli user ke tabel tak terjawab
                 DatabaseHelper.simpanPertanyaanTakTerjawab(input.trim());
-                System.out.println("[DEBUG] Berhasil memicu simpanPertanyaanTakTerjawab untuk: " + input);
+                System.out.println("[DEBUG] Pertanyaan tidak terjawab disimpan: " + input);
             } catch (Exception e) {
-                System.err.println("Gagal menyimpan unanswered question: " + e.getMessage());
+                System.err.println("Gagal menyimpan pertanyaan tak terjawab: " + e.getMessage());
             }
 
-            // Pastikan respons memberikan pesan fallback yang jelas
             if (respons == null || respons.getContent().isBlank()) {
                 respons = ChatMessage.botMessage(
-                        "🙏 Maaf, saya belum memiliki informasi mengenai hal tersebut.\n\n" +
-                                "Pertanyaan Anda sudah saya catat agar Admin dapat melengkapi informasinya segera. " +
-                                "Silakan tanya hal lain atau hubungi Sekretariat di: " + DatabaseHelper.getInfo("telepon")
+                        "🙏 Maaf, saya belum memiliki informasi lengkap mengenai hal tersebut.\n\n" +
+                                "Pertanyaan Anda sudah saya catat agar Admin dapat melengkapi jawabannya segera. " +
+                                "Silakan tanyakan hal lain atau hubungi Sekretariat di: " + DatabaseHelper.getInfo("telepon")
                 );
             }
         }
@@ -177,7 +307,6 @@ public class ChatbotService {
         return List.of(respons);
     }
 
-//    // ── Shortcut sidebar ──────────────────────────────────────
     public ChatMessage getInfoBaptis()    { state = State.BAPTIS;    return infoBaptis();     }
     public ChatMessage getInfoPernikahan(){ state = State.NIKAH;     return infoNikah();      }
     public ChatMessage getInfoSidi()      { state = State.SIDI;      return infoSidi();       }
@@ -186,39 +315,155 @@ public class ChatbotService {
     public ChatMessage getWelcomeMessage(){ return pesanWelcome();   }
 
     // ══════════════════════════════════════════════════════════
-    //  SAMBUTAN
+    //  LOGIKA PENGHITUNGAN HARI & DETAIL IBADAH MINGGUAN
     // ══════════════════════════════════════════════════════════
+
+    private String handleIbadahMingguanQuery(String lowerInput) {
+
+        LocalDate today = LocalDate.now();
+        LocalDate targetSunday;
+        String label = "Minggu Ini";
+
+        if (lowerInput.contains("minggu depan")) {
+            label = "Minggu Depan";
+
+            LocalDate upcomingSunday =
+                    today.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
+
+            if (today.getDayOfWeek() == DayOfWeek.SUNDAY) {
+                targetSunday = today.plusWeeks(1);
+            } else {
+                targetSunday = upcomingSunday.plusWeeks(1);
+            }
+
+        } else {
+            targetSunday =
+                    today.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
+        }
+
+        Map<String, String> ibadah =
+                IbadahDatabaseHelper.getIbadahByDate(targetSunday.toString());
+        lastRequestedIbadahDate = targetSunday;
+        lastIbadahData = ibadah;
+
+        if (ibadah.isEmpty()) {
+            return "Maaf, jadwal ibadah belum tersedia.";
+        }
+
+        String formattedDate = targetSunday.format(FMT_PANJANG);
+
+        boolean askTema =
+                containsAny(lowerInput, KW_TEMA);
+
+        boolean askAyat =
+                containsAny(lowerInput, KW_AYAT);
+
+        boolean askRenungan =
+                containsAny(lowerInput, KW_RENUNGAN);
+
+        boolean askJadwal =
+                containsAny(lowerInput, KW_WAKTU_IBADAH);
+
+        boolean askPendeta =
+                containsAny(lowerInput, KW_PENDETA);
+
+        // Jika user minta SEMUA
+        boolean askAll =
+                askTema &&
+                        askAyat &&
+                        askRenungan &&
+                        askJadwal &&
+                        askPendeta;
+
+        StringBuilder sb = new StringBuilder();
+
+        // Jika tidak ada keyword spesifik
+        // tampilkan full info default
+        if (!askTema && !askAyat && !askRenungan
+                && !askJadwal && !askPendeta) {
+
+            askTema = true;
+            askAyat = true;
+            askRenungan = true;
+            askJadwal = true;
+            askPendeta = true;
+        }
+
+        sb.append("⛪ IBADAH ").append(label.toUpperCase()).append("\n\n");
+
+        if (askJadwal) {
+            sb.append("📅 Hari/Tanggal : ")
+                    .append(formattedDate)
+                    .append("\n");
+
+            sb.append("🕖 Waktu : ")
+                    .append(ibadah.get("jam"))
+                    .append("\n\n");
+        }
+
+        if (askAyat) {
+            sb.append("📖 Ayat Alkitab : ")
+                    .append(ibadah.get("ayat"))
+                    .append("\n\n");
+        }
+
+        if (askPendeta) {
+            sb.append("👤 Pelayan Firman : ")
+                    .append(ibadah.get("pemimpin"))
+                    .append("\n\n");
+        }
+
+        if (askTema) {
+            sb.append("🌟 Tema Ibadah :\n")
+                    .append(ibadah.get("tema"))
+                    .append("\n\n");
+        }
+
+        if (askRenungan) {
+            sb.append("✍ Renungan :\n")
+                    .append(ibadah.get("renungan"));
+        }
+
+        return sb.toString().trim();
+    }
+
+    private String infoDetailPendeta() {
+        List<Map<String, String>> list = IbadahDatabaseHelper.getAllPendeta();
+        if (list.isEmpty()) {
+            return "👨‍⚕️ Informasi Pendeta\nData pendeta belum tersedia di database.";
+        }
+        StringBuilder sb = new StringBuilder("👨‍⚕️ INFORMASI DETAIL PENDETA GEREJA\nBerikut adalah data pendeta pelayan di GKJ Ngupasan:\n\n");
+        for (Map<String, String> p : list) {
+            sb.append("• ").append(p.get("nama")).append("\n");
+            sb.append("  - Jabatan: ").append(p.get("jabatan")).append("\n");
+            sb.append("  - Spesialisasi: ").append(p.get("spesialisasi")).append("\n");
+            sb.append("  - Jadwal Konseling: ").append(p.get("jadwal_konseling")).append("\n");
+            sb.append("  - Kontak Konsultasi: ").append(p.get("kontak")).append("\n\n");
+        }
+        return sb.toString().trim();
+    }
 
     private ChatMessage pesanWelcome() {
         String namaGereja = DatabaseHelper.getInfo("nama_gereja");
         return ChatMessage.botMessage(
-                "Shalom! Selamat datang di Faith Buddy 🙏\n\n" );
-//                        "Asisten informasi " + namaGereja + ".\n\n" +
-//                        "Silakan ketik pertanyaan Anda atau pilih menu di bawah:\n\n" +
-//                        "💧 Baptis\n" +
-//                        "💍 Pernikahan\n" +
-//                        "📖 SIDI / Peneguhan\n" +
-//                        "🤝 Konseling Pastoral\n" +
-//                        "📅 Jadwal Kegiatan\n" +
-//                        "📞 Kontak & Lokasi\n\n" +
-//                        "Contoh: \"syarat baptis\", \"jadwal sidi\", \"biaya pernikahan\", \"visi gereja\"");
+                "Shalom! Selamat datang di Faith Buddy 🙏\n" +
+                        "Asisten informasi " + namaGereja + ".\n\n" +
+                        "Silakan ketik pertanyaan Anda atau gunakan menu sidebar untuk menjelajah:\n" +
+                        "• Tanya jadwal ibadah: \"jadwal ibadah minggu depan\"\n" +
+                        "• Tanya profil pendeta: \"siapa pendeta gereja ini\"\n" +
+                        "• Layanan gereja: \"syarat baptis\", \"biaya pernikahan\", \"jadwal sidi\"");
     }
 
     private ChatMessage pesanSalam() {
-        return ChatMessage.botMessage(
-                "Shalom! Tuhan memberkati 🙏\n\n" );
+        return ChatMessage.botMessage("Shalom! Tuhan memberkati 🙏\nAda yang bisa saya bantu hari ini?");
     }
 
     private ChatMessage pesanMakasih() {
         return ChatMessage.botMessage(
-                "Sama-sama, saudara! 😊\n\n" +
+                "Sama-sama, saudara! 😊\n" +
                         "Semoga pelayanan ini bermanfaat. Tuhan Yesus memberkati!\n\n" +
                         "Ada lagi yang bisa saya bantu?");
     }
-
-    // ══════════════════════════════════════════════════════════
-    //  PROFIL GEREJA
-    // ══════════════════════════════════════════════════════════
 
     private ChatMessage infoProfilGereja() {
         String nama    = DatabaseHelper.getInfo("nama_gereja");
@@ -227,8 +472,6 @@ public class ChatbotService {
         String visi    = DatabaseHelper.getInfo("visi");
         String misi    = DatabaseHelper.getInfo("misi");
         String alamat  = DatabaseHelper.getInfo("alamat");
-        String pend1   = DatabaseHelper.getInfo("pendeta_1");
-        String pend2   = DatabaseHelper.getInfo("pendeta_2");
 
         return ChatMessage.botMessage(
                 "✝ Profil " + nama + "\n\n" +
@@ -237,27 +480,15 @@ public class ChatbotService {
                         "⛪ Denominasi  : " + denom + "\n\n" +
                         "Visi:\n" + visi + "\n\n" +
                         "Misi:\n" + misi + "\n\n" +
-                        "Pendeta:\n" +
-                        "• " + pend1 + "\n" +
-                        "• " + pend2 + "\n\n" +
-                        "Untuk info lengkap, kunjungi: " + DatabaseHelper.getInfo("website"));
+                        "Untuk info lengkap, kunjungi website resmi kami di: " + DatabaseHelper.getInfo("website"));
     }
-
-    // ══════════════════════════════════════════════════════════
-    //  BAPTIS
-    // ══════════════════════════════════════════════════════════
 
     private ChatMessage infoBaptis() {
         StepInfo[] s = {
-                new StepInfo(1, "Siapkan Dokumen",
-                        "KTP, KK, pas foto 3×4, formulir pendaftaran dari sekretariat", "#1A3A2A"),
-                new StepInfo(2, "Daftar ke Sekretariat",
-                        "Datang langsung atau hubungi WA " + DatabaseHelper.getInfo("whatsapp") +
-                                " (Senin–Jumat 08.00–16.00)", "#2D5A3D"),
-                new StepInfo(3, "Sesi Konseling",
-                        "2 kali pertemuan dengan Pendeta, sekitar 2–3 minggu sebelum pelaksanaan", "#4A7A5A"),
-                new StepInfo(4, "Pelaksanaan Baptis",
-                        "Dalam Ibadah Minggu sesuai jadwal yang ditetapkan Majelis", "#D4A843")
+                new StepInfo(1, "Siapkan Dokumen", "KTP, KK, pas foto 3×4, formulir pendaftaran dari sekretariat", "#1A3A2A"),
+                new StepInfo(2, "Daftar ke Sekretariat", "Datang langsung atau hubungi WA " + DatabaseHelper.getInfo("whatsapp"), "#2D5A3D"),
+                new StepInfo(3, "Sesi Konseling", "2 kali pertemuan dengan Pendeta, sekitar 2–3 minggu sebelum pelaksanaan", "#4A7A5A"),
+                new StepInfo(4, "Pelaksanaan Baptis", "Dalam Ibadah Minggu sesuai jadwal yang ditetapkan Majelis", "#D4A843")
         };
         return ChatMessage.botStepMessage("Panduan Pembaptisan Kudus", s,
                 new String[]{"Persyaratan Baptis", "Jadwal Baptis", "Biaya Baptis"});
@@ -277,29 +508,16 @@ public class ChatbotService {
                         "Pukul        : 07.00 / 09.30 WIB (sesuai jadwal Majelis)\n" +
                         "Lokasi       : Gedung Ibadah Utama\n\n" +
                         "⏰ Batas Pendaftaran : " + deadline.format(FMT_PENDEK) + "\n\n" +
-                        "Cara mendaftar:\n" +
-                        "📍 Datang ke sekretariat (Senin–Jumat 08.00–16.00)\n" +
-                        "📱 WhatsApp  : " + DatabaseHelper.getInfo("whatsapp") + "\n" +
-                        "📞 Telepon   : " + DatabaseHelper.getInfo("telepon") + "\n\n" +
-                        "Ketik \"syarat baptis\" untuk melihat dokumen yang diperlukan.");
+                        "Silakan daftar melalui sekretariat atau hubungi WhatsApp: " + DatabaseHelper.getInfo("whatsapp"));
     }
-
-    // ══════════════════════════════════════════════════════════
-    //  PERNIKAHAN
-    // ══════════════════════════════════════════════════════════
 
     private ChatMessage infoNikah() {
         StepInfo[] s = {
-                new StepInfo(1, "Konsultasi Awal",
-                        "Temui Pendeta minimal 3 bulan sebelum hari H untuk koordinasi", "#1A3A2A"),
-                new StepInfo(2, "Siapkan Dokumen",
-                        "KTP, Akta Lahir, Surat Baptis, Surat Sipil N1–N4, foto berdampingan", "#2D5A3D"),
-                new StepInfo(3, "Kelas Pra-Nikah",
-                        "4 sesi setiap Sabtu 09.00–11.30 WIB di Ruang Pertemuan Lt.1", "#4A7A5A"),
-                new StepInfo(4, "Gladi Resik",
-                        "H-1 pemberkatan, pukul 17.00 WIB di Gedung Utama", "#7A9A6A"),
-                new StepInfo(5, "Pemberkatan Pernikahan",
-                        "Sesuai hari yang disepakati bersama Majelis", "#D4A843")
+                new StepInfo(1, "Konsultasi Awal", "Temui Pendeta minimal 3 bulan sebelum hari H untuk koordinasi", "#1A3A2A"),
+                new StepInfo(2, "Siapkan Dokumen", "KTP, Akta Lahir, Surat Baptis, Surat Sipil N1–N4, foto berdampingan", "#2D5A3D"),
+                new StepInfo(3, "Kelas Pra-Nikah", "4 sesi setiap Sabtu 09.00–11.30 WIB di Ruang Pertemuan Lt.1", "#4A7A5A"),
+                new StepInfo(4, "Gladi Resik", "H-1 pemberkatan, pukul 17.00 WIB di Gedung Utama", "#7A9A6A"),
+                new StepInfo(5, "Pemberkatan Pernikahan", "Sesuai hari yang disepakati bersama Majelis", "#D4A843")
         };
         return ChatMessage.botStepMessage("Panduan Pernikahan Gerejawi", s,
                 new String[]{"Persyaratan Dokumen", "Jadwal Pra-Nikah", "Biaya Pernikahan"});
@@ -316,28 +534,16 @@ public class ChatbotService {
                         "Kelas Pra-Nikah:\n" +
                         "• Setiap Sabtu, 09.00–11.30 WIB\n" +
                         "• Sabtu terdekat: " + sabtu.format(FMT_PENDEK) + "\n" +
-                        "• Durasi: 4 sesi berturut-turut\n" +
                         "• Lokasi: Ruang Pertemuan, Lantai 1\n\n" +
-                        "Konsultasi dengan Pendeta:\n" +
-                        "• Senin & Rabu, 10.00–12.00 WIB\n" +
-                        "• Daftar via sekretariat: " + DatabaseHelper.getInfo("telepon") + "\n\n" +
                         "⚠️ Pendaftaran pernikahan wajib minimal 3 bulan sebelum hari H.");
     }
 
-    // ══════════════════════════════════════════════════════════
-    //  SIDI
-    // ══════════════════════════════════════════════════════════
-
     private ChatMessage infoSidi() {
         StepInfo[] s = {
-                new StepInfo(1, "Pendaftaran",
-                        "Syarat utama: sudah dibaptis & berusia minimal 14 tahun", "#1A3A2A"),
-                new StepInfo(2, "Kelas Persiapan SIDI",
-                        "8 pertemuan setiap Minggu 11.00–13.00 WIB (sekitar 2 bulan)", "#2D5A3D"),
-                new StepInfo(3, "Ujian Sidi",
-                        "Ujian lisan: Pengakuan Iman, Katekismus, dan Tata Ibadah GKJ", "#4A7A5A"),
-                new StepInfo(4, "Peneguhan Sidi",
-                        "Dalam Ibadah Minggu yang disaksikan seluruh jemaat", "#D4A843")
+                new StepInfo(1, "Pendaftaran", "Syarat utama: sudah dibaptis & berusia minimal 14 tahun", "#1A3A2A"),
+                new StepInfo(2, "Kelas Persiapan SIDI", "8 pertemuan setiap Minggu 11.00–13.00 WIB (sekitar 2 bulan)", "#2D5A3D"),
+                new StepInfo(3, "Ujian Sidi", "Ujian lisan: Pengakuan Iman, Katekismus, dan Tata Ibadah GKJ", "#4A7A5A"),
+                new StepInfo(4, "Peneguhan Sidi", "Dalam Ibadah Minggu yang disaksikan seluruh jemaat", "#D4A843")
         };
         return ChatMessage.botStepMessage("Panduan SIDI / Peneguhan Sidi", s,
                 new String[]{"Persyaratan SIDI", "Jadwal Kelas SIDI", "Biaya SIDI"});
@@ -355,33 +561,18 @@ public class ChatbotService {
                         "Kelas Persiapan:\n" +
                         "• Setiap Minggu, 11.00–13.00 WIB\n" +
                         "• Mulai: " + mulai.format(FMT_PENDEK) + "\n" +
-                        "• Durasi: 8 pertemuan (±2 bulan)\n" +
                         "• Lokasi: Ruang Katekisasi, Lantai 2\n\n" +
                         "Peneguhan Sidi:\n" +
                         "• Perkiraan: " + peneguhan.format(FMT_PANJANG) + "\n\n" +
-                        "⏰ Batas daftar: 1 minggu sebelum kelas pertama.\n" +
-                        "📱 WA: " + DatabaseHelper.getInfo("whatsapp") + "\n\n" +
-                        "Ketik \"syarat sidi\" untuk daftar dokumen yang diperlukan.");
+                        "⏰ Pendaftaran ditutup 1 minggu sebelum kelas dimulai.");
     }
 
-
-
-    // ══════════════════════════════════════════════════════════
-    //  KONSELING
-    // ══════════════════════════════════════════════════════════
-
     private ChatMessage infoKonseling() {
-        String pend1 = DatabaseHelper.getInfo("pendeta_1");
-        String pend2 = DatabaseHelper.getInfo("pendeta_2");
         StepInfo[] s = {
-                new StepInfo(1, "Ajukan Permohonan",
-                        "Isi formulir di sekretariat atau via WhatsApp " + DatabaseHelper.getInfo("whatsapp"), "#1A3A2A"),
-                new StepInfo(2, "Konfirmasi Jadwal",
-                        "Sekretariat menghubungi Anda dalam 1–3 hari kerja", "#2D5A3D"),
-                new StepInfo(3, "Sesi Konseling",
-                        "±60 menit di Ruang Konseling Pastoral, Lantai 2. Online juga tersedia.", "#4A7A5A"),
-                new StepInfo(4, "Tindak Lanjut",
-                        "Pendeta merekomendasikan langkah lanjut sesuai kebutuhan", "#D4A843")
+                new StepInfo(1, "Ajukan Permohonan", "Isi formulir di sekretariat atau via WhatsApp " + DatabaseHelper.getInfo("whatsapp"), "#1A3A2A"),
+                new StepInfo(2, "Konfirmasi Jadwal", "Sekretariat menghubungi Anda dalam 1–3 hari kerja", "#2D5A3D"),
+                new StepInfo(3, "Sesi Konseling", "±60 menit di Ruang Konseling Pastoral, Lantai 2. Online juga tersedia.", "#4A7A5A"),
+                new StepInfo(4, "Tindak Lanjut", "Pendeta merekomendasikan langkah lanjut sesuai kebutuhan", "#D4A843")
         };
         return ChatMessage.botStepMessage("Panduan Konseling Pastoral", s,
                 new String[]{"Jadwal Konseling", "Biaya Konseling", "Hubungi Sekretariat"});
@@ -394,21 +585,13 @@ public class ChatbotService {
         String pend2     = DatabaseHelper.getInfo("pendeta_2");
         return ChatMessage.botMessage(
                 "📅 Jadwal Konseling Pastoral\n\n" +
-                        pend1 + "\n" +
-                        "  Selasa & Kamis, 13.00–16.00 WIB\n" +
+                        pend1 + " (Selasa & Kamis, 13.00–16.00 WIB)\n" +
                         "  Selasa terdekat: " + selasa.format(FMT_PENDEK) + "\n\n" +
-                        pend2 + "\n" +
-                        "  Rabu & Jumat, 10.00–13.00 WIB\n" +
+                        pend2 + " (Rabu & Jumat, 10.00–13.00 WIB)\n" +
                         "  Rabu terdekat: " + rabu.format(FMT_PENDEK) + "\n\n" +
                         "📍 Lokasi    : Ruang Konseling Pastoral, Gedung Gereja Lt.2\n" +
-                        "💻 Online    : Tersedia via video call (WhatsApp/Zoom)\n\n" +
-                        "📞 Daftar   : " + DatabaseHelper.getInfo("telepon") + "\n" +
                         "📱 WhatsApp : " + DatabaseHelper.getInfo("whatsapp"));
     }
-
-    // ══════════════════════════════════════════════════════════
-    //  JADWAL UMUM & IBADAH
-    // ══════════════════════════════════════════════════════════
 
     private ChatMessage infoJadwalUmum() {
         LocalDate today    = LocalDate.now();
@@ -432,7 +615,7 @@ public class ChatbotService {
                         "  Peneguhan    : " + peneguhan.format(FMT_PANJANG) + "\n\n" +
                         "── KONSELING ──\n" +
                         "  Selasa terdekat : " + selasa.format(FMT_PENDEK) + " pukul 13.00 WIB\n\n" +
-                        "📞 Info lebih lanjut: " + DatabaseHelper.getInfo("telepon"));
+                        "📞 Info lengkap hubungi: " + DatabaseHelper.getInfo("telepon"));
     }
 
     private ChatMessage infoIbadah() {
@@ -440,23 +623,16 @@ public class ChatbotService {
         return ChatMessage.botMessage(
                 "⛪ Jadwal Ibadah " + DatabaseHelper.getInfo("nama_gereja") + "\n\n" +
                         "Ibadah Minggu (" + minggu.format(FMT_PENDEK) + "):\n" +
-                        "  🕖 07.00 WIB – Ibadah I (Bahasa Jawa)\n" +
-                        "  🕤 09.30 WIB – Ibadah II (Bahasa Indonesia)\n" +
-                        "  🕔 17.00 WIB – Ibadah III (Bahasa Indonesia / Kontemporer)\n\n" +
+                        "  Ibadah I   : 07.00 WIB (Bahasa Jawa)\n" +
+                        "  Ibadah II  : 09.30 WIB (Bahasa Indonesia)\n" +
+                        "  Ibadah III : 17.00 WIB (Kontemporer)\n\n" +
                         "📚 Sekolah Minggu : 09.30 WIB, Ruang Anak Lt.1\n" +
-                        "👨‍👩‍👧 PA Keluarga    : 09.30 WIB, Ruang Keluarga Lt.2\n" +
                         "🙏 Ibadah Pemuda  : Sabtu 16.00–18.00 WIB\n\n" +
-                        "📍 Lokasi: " + DatabaseHelper.getInfo("alamat") + "\n\n" +
-                        "Ketik \"kontak\" untuk informasi lebih lanjut.");
+                        "📍 Lokasi: " + DatabaseHelper.getInfo("alamat"));
     }
-
-    // ══════════════════════════════════════════════════════════
-    //  BIAYA & KONTAK
-    // ══════════════════════════════════════════════════════════
 
     private ChatMessage biaya(String kategori) {
         if ("SEMUA".equals(kategori)) {
-            // Ambil semua biaya dari DB
             StringBuilder sb = new StringBuilder("💰 Biaya Layanan " + DatabaseHelper.getInfo("nama_gereja") + "\n\n");
             for (String kat : List.of("BAPTIS", "SIDI", "KONSELING", "PERNIKAHAN")) {
                 List<String[]> list = DatabaseHelper.getBiaya(kat);
@@ -470,15 +646,13 @@ public class ChatbotService {
                     sb.append("\n");
                 }
             }
-            sb.append("📞 Konfirmasi: ").append(DatabaseHelper.getInfo("telepon"));
+            sb.append("📞 Hubungi sekretariat untuk konfirmasi.");
             return ChatMessage.botMessage(sb.toString());
         }
 
         List<String[]> list = DatabaseHelper.getBiaya(kategori);
         if (list.isEmpty()) {
-            return ChatMessage.botMessage(
-                    "Info biaya " + namaKategori(kategori) + " belum tersedia.\n" +
-                            "Silakan hubungi: " + DatabaseHelper.getInfo("telepon"));
+            return ChatMessage.botMessage("Info biaya " + namaKategori(kategori) + " belum tersedia.");
         }
         StringBuilder sb = new StringBuilder("💰 Biaya " + namaKategori(kategori) + "\n\n");
         for (String[] item : list) {
@@ -486,7 +660,6 @@ public class ChatbotService {
             if (item[2] != null && !item[2].isBlank())
                 sb.append("  ↳ ").append(item[2]).append("\n");
         }
-        sb.append("\n📞 Konfirmasi terkini: ").append(DatabaseHelper.getInfo("telepon"));
         return ChatMessage.botMessage(sb.toString());
     }
 
@@ -498,69 +671,46 @@ public class ChatbotService {
                         "Email    : " + DatabaseHelper.getInfo("email")    + "\n" +
                         "Website  : " + DatabaseHelper.getInfo("website")  + "\n\n" +
                         "📍 Alamat:\n" + DatabaseHelper.getInfo("alamat") + "\n\n" +
-                        "⏰ Jam Operasional Sekretariat:\n" +
-                        DatabaseHelper.getInfo("jam_operasional") + "\n\n" +
-                        "Sosmed:\n" +
-                        "📸 Instagram: " + DatabaseHelper.getInfo("instagram") + "\n" +
-                        "👍 Facebook : " + DatabaseHelper.getInfo("facebook"));
+                        "⏰ Jam Operasional Sekretariat:\n" + DatabaseHelper.getInfo("jam_operasional"));
     }
-
-    // ══════════════════════════════════════════════════════════
-    //  BALASAN KONTEKSTUAL (FALLBACK)
-    // ══════════════════════════════════════════════════════════
 
     private ChatMessage balasanKontekstual() {
         return switch (state) {
-            case BAPTIS    -> ChatMessage.botMessage(
-                    "Tentang Pembaptisan, Anda dapat bertanya:\n\n" +
-                            "-\"syarat baptis\"\n" +
-                            "- \"jadwal baptis\"\n" +
-                            "- \"biaya baptis\"");
-            case NIKAH     -> ChatMessage.botMessage(
-                    "Tentang Pernikahan, Anda dapat bertanya:\n\n" +
-                            "- \"syarat pernikahan\"\n" +
-                            "- \"jadwal pra-nikah\"\n" +
-                            "- \"biaya pernikahan\"");
-            case SIDI      -> ChatMessage.botMessage(
-                    "Tentang SIDI, Anda dapat bertanya:\n\n" +
-                            "- \"syarat sidi\"\n" +
-                            "- \"jadwal sidi\"\n" +
-                            "- \"biaya sidi\"");
-            case KONSELING -> ChatMessage.botMessage(
-                    "Untuk informasi konseling:\n\n" +
-                            "- \"jadwal konseling\"\n" +
-                            "- \"biaya konseling\"\n\n" +
-                            "Atau langsung hubungi: " + DatabaseHelper.getInfo("telepon"));
+            case BAPTIS    -> ChatMessage.botMessage("Tentang Pembaptisan, Anda dapat bertanya:\n• \"syarat baptis\"\n• \"jadwal baptis\"\n• \"biaya baptis\"");
+            case NIKAH     -> ChatMessage.botMessage("Tentang Pernikahan, Anda dapat bertanya:\n• \"syarat pernikahan\"\n• \"jadwal pra-nikah\"\n• \"biaya pernikahan\"");
+            case SIDI      -> ChatMessage.botMessage("Tentang SIDI, Anda dapat bertanya:\n• \"syarat sidi\"\n• \"jadwal sidi\"\n• \"biaya sidi\"");
+            case KONSELING -> ChatMessage.botMessage("Untuk informasi konseling:\n• \"jadwal konseling\"\n• \"biaya konseling\"\n\nAtau hubungi: " + DatabaseHelper.getInfo("telepon"));
             default        -> ChatMessage.botMessage(
-                    "Maaf, saya belum menemukan jawaban untuk pertanyaan tersebut. 🙏\n\n" +
+                    "Maaf, saya belum menemukan jawaban yang tepat. 🙏\n\n" +
                             "Silakan tanya tentang:\n" +
-                            "- Baptis\n" +
-                            "- Pernikahan\n" +
-                            "- SIDI / Peneguhan\n" +
-                            "- Konseling\n" +
-                            "- Jadwal Kegiatan\n" +
-                            "- Visi, Misi & Profil Gereja\n" +
-                            "- Kontak & Lokasi\n\n" +
-                            "Contoh: \"syarat baptis\", \"jam ibadah\", \"pendeta gereja\"");
+                            "• Jadwal ibadah minggu depan / minggu ini\n" +
+                            "• Profil pendeta / siapa pendeta gereja\n" +
+                            "• Syarat & biaya (Baptis, Pernikahan, SIDI, Konseling)\n" +
+                            "• Visi, misi, profil, dan kontak gereja");
         };
     }
 
-    // ══════════════════════════════════════════════════════════
-    //  UTILITY
-    // ══════════════════════════════════════════════════════════
+    private String formatStepMessageAsText(ChatMessage stepMsg) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("📋 **").append(stepMsg.getContent()).append("**:\n\n");
+        if (stepMsg.getSteps() != null) {
+            for (StepInfo step : stepMsg.getSteps()) {
+                sb.append("📍 **Langkah ").append(step.getNumber()).append("**: ").append(step.getTitle()).append("\n");
+                sb.append("   ").append(step.getDetail()).append("\n\n");
+            }
+        }
+        return sb.toString().trim();
+    }
 
     private ChatMessage buatPesanSyarat(String kategori, String catatan) {
         List<String> list = DatabaseHelper.getSyarat(kategori);
         if (list.isEmpty()) {
-            return ChatMessage.botMessage(
-                    "Data persyaratan " + namaKategori(kategori) + " belum tersedia.\n" +
-                            "Hubungi: " + DatabaseHelper.getInfo("telepon"));
+            return ChatMessage.botMessage("Data persyaratan " + namaKategori(kategori) + " belum tersedia.");
         }
         StringBuilder sb = new StringBuilder("📋 Persyaratan " + namaKategori(kategori) + "\n\n");
         for (int i = 0; i < list.size(); i++)
             sb.append((i + 1)).append(". ").append(list.get(i)).append("\n");
         sb.append("\n⏰ Semua dokumen dikumpulkan paling lambat ").append(catatan);
-        sb.append("\n\n📍 Sekretariat: ").append(DatabaseHelper.getInfo("alamat"));
         return ChatMessage.botMessage(sb.toString());
     }
 

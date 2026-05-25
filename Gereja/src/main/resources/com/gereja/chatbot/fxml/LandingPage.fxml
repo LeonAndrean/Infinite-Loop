@@ -1,109 +1,37 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.image.ImageView?>
-<?import javafx.scene.layout.StackPane?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 
-<StackPane style="-fx-background-color: #1C3D2B;"
-           xmlns="http://javafx.com/javafx/17.0.12"
-           xmlns:fx="http://javafx.com/fxml/1"
-           fx:controller="com.gereja.chatbot.controller.LandingController">
+<StackPane style="-fx-background-color: #1C3D2B;" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.gereja.chatbot.controller.LandingController">
 
     <VBox maxWidth="Infinity">
 
         <!-- HEADER -->
-        <VBox alignment="CENTER"
-              spacing="8"
-              style="-fx-background-color: #122A1E; -fx-padding: 14;"
-              maxWidth="Infinity">
+        <VBox alignment="CENTER" maxWidth="Infinity" spacing="8" style="-fx-background-color: #122A1E; -fx-padding: 14;">
 
-            <Label text="Faith Buddy"
-                   style="-fx-text-fill: #f8f8f8;
-                          -fx-font-size: 24px;
-                          -fx-font-weight: bold;" />
+            <Label style="-fx-text-fill: #f8f8f8;                           -fx-font-size: 24px;                           -fx-font-weight: bold;" text="Faith Buddy" />
 
-            <Label text="Chatbot Asisten Gereja"
-                   style="-fx-text-fill: #7AAA8A;
-                          -fx-font-size: 13px;" />
+            <Label style="-fx-text-fill: #7AAA8A;                           -fx-font-size: 13px;" text="Chatbot Asisten Gereja" />
 
         </VBox>
 
         <!-- CONTENT -->
         <StackPane alignment="CENTER" VBox.vgrow="ALWAYS">
 
-            <VBox alignment="CENTER"
-                  spacing="20"
-                  maxWidth="440"
-                  style="-fx-background-color: #1C3D2B;
-                         -fx-padding: 40 40 40 40;">
+            <VBox alignment="CENTER" maxWidth="440" spacing="20" style="-fx-background-color: #1C3D2B;                          -fx-padding: 40 40 40 40;">
 
-                <!-- LOGO -->
-                <ImageView fx:id="logoImage"
-                           fitHeight="120"
-                           fitWidth="120"
-                           preserveRatio="true"/>
+<!--                &lt;!&ndash; LOGO &ndash;&gt;-->
+<!--                <ImageView fx:id="logoImage"-->
+<!--                           fitHeight="120"-->
+<!--                           fitWidth="120"-->
+<!--                           preserveRatio="true"/>-->
 
                 <!-- DESCRIPTION -->
-                <Label text="Teman digital untuk membantu pelayanan dan informasi gereja"
-                       wrapText="true"
-                       maxWidth="320"
-                       style="-fx-text-fill: #9EC4AE;
-                              -fx-font-size: 13px;
-                              -fx-alignment: center;" />
+                <Label maxWidth="320" style="-fx-text-fill: #9EC4AE;                               -fx-font-size: 13px;                               -fx-alignment: center;" text="Teman digital untuk membantu pelayanan dan informasi gereja" textAlignment="CENTER" wrapText="true" />
 
                 <!-- START BUTTON -->
-                <Button text="MULAI CHAT"
-                        onAction="#handleStartChat"
-                        prefWidth="260"
-                        prefHeight="45"
-                        style="-fx-background-color: #D4A843;
-                               -fx-text-fill: #1C3D2B;
-                               -fx-font-weight: bold;
-                               -fx-font-size: 14px;
-                               -fx-background-radius: 5;
-                               -fx-cursor: hand;" />
-
-                <!-- SETTINGS BUTTON -->
-                <Button text="PENGATURAN"
-                        onAction="#handleOpenSettings"
-                        prefWidth="260"
-                        prefHeight="45"
-                        style="-fx-background-color: #142D1F;
-                               -fx-text-fill: #E8F0EB;
-                               -fx-font-weight: bold;
-                               -fx-font-size: 14px;
-                               -fx-background-radius: 5;
-                               -fx-border-color: #7AAA8A;
-                               -fx-border-radius: 5;
-                               -fx-cursor: hand;" />
-
-                <Button text="TENTANG KAMI"
-                        onAction="#handleOpenAbout"
-                        prefWidth="260"
-                        prefHeight="45"
-                        style="-fx-background-color: #203F2E;
-                               -fx-text-fill: #E8F0EB;
-                               -fx-font-weight: bold;
-                               -fx-font-size: 14px;
-                               -fx-background-radius: 5;
-                               -fx-border-color: #D4A843;
-                               -fx-border-radius: 5;
-                               -fx-cursor: hand;" />
-
-                <!-- ADMIN BUTTON -->
-                <Button text="LOGIN ADMIN"
-                        onAction="#handleAdminLogin"
-                        prefWidth="260"
-                        prefHeight="45"
-                        style="-fx-background-color: transparent;
-                               -fx-text-fill: #7AAA8A;
-                               -fx-font-size: 13px;
-                               -fx-border-color: #7AAA8A;
-                               -fx-border-radius: 5;
-                               -fx-background-radius: 5;
-                               -fx-cursor: hand;" />
+                <Button onAction="#handleStartChat" prefHeight="45" prefWidth="260" style="-fx-background-color: #D4A843;                                -fx-text-fill: #1C3D2B;                                -fx-font-weight: bold;                                -fx-font-size: 14px;                                -fx-background-radius: 5;                                -fx-cursor: hand;" text="MULAI CHAT" />
 
             </VBox>
 

@@ -98,14 +98,39 @@ public class SettingsController {
     // ================= BUTTON ACTION =================
 
     @FXML
-    public void handleSave() {
-
+    public void handleSave(javafx.event.ActionEvent event) {
         System.out.println("Pengaturan disimpan!");
+        handleBack(event);
     }
 
     @FXML
-    public void handleBack() {
-
-        System.out.println("Kembali ditekan!");
+    public void handleBack(javafx.event.ActionEvent event) {
+        try {
+            javafx.stage.Stage stage = (javafx.stage.Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
+            javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(
+                    getClass().getResource("/com/gereja/chatbot/fxml/ChurchChatbot.fxml")
+            );
+            javafx.scene.Scene scene = new javafx.scene.Scene(loader.load());
+            stage.setScene(scene);
+            stage.show();
+        } catch (Exception e) {
+            System.err.println("[SettingsController] Gagal kembali ke Chatbot: " + e.getMessage());
+            e.printStackTrace();
+            // Fallback to landing page if chatbot load fails
+            try {
+                javafx.stage.Stage stage = (javafx.stage.Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
+                javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(
+                        getClass().getResource("/com/gereja/chatbot/fxml/LandingPage.fxml")
+                );
+                javafx.scene.Scene scene = new javafx.scene.Scene(loader.load(), 500, 620);
+                scene.getStylesheets().add(java.util.Objects.requireNonNull(
+                        getClass().getResource("/com/gereja/chatbot/css/styles.css")).toExternalForm());
+                stage.setScene(scene);
+                stage.show();
+            } catch (Exception ex) {
+                System.err.println("[SettingsController] Fallback FATAL: " + ex.getMessage());
+                ex.printStackTrace();
+            }
+        }
     }
 }

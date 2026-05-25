@@ -364,6 +364,7 @@ public class ChatbotController implements Initializable {
                 return;
 
             } catch (Exception e) {
+                System.err.println("[ChatbotController] Gagal membuka Tentang Kami: " + e.getMessage());
                 e.printStackTrace();
             }
         }
@@ -381,47 +382,61 @@ public class ChatbotController implements Initializable {
         ));
     }
 
+    @FXML
+    public void handleOpenSettings(javafx.scene.input.MouseEvent event) {
+        try {
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/com/gereja/chatbot/fxml/Settings.fxml")
+            );
+            Scene scene = new Scene(loader.load());
+            stage.setScene(scene);
+            stage.show();
+        } catch (Exception e) {
+            System.err.println("[ChatbotController] Gagal membuka Pengaturan: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    public void handleBackToLanding(javafx.scene.input.MouseEvent event) {
+        try {
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/com/gereja/chatbot/fxml/LandingPage.fxml")
+            );
+            Scene scene = new Scene(loader.load(), 500, 620);
+            scene.getStylesheets().add(Objects.requireNonNull(
+                    getClass().getResource("/com/gereja/chatbot/css/styles.css")).toExternalForm());
+            stage.setScene(scene);
+            stage.show();
+        } catch (Exception e) {
+            System.err.println("[ChatbotController] Gagal kembali ke Landing Page: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    public void handleAdminLoginFromSidebar(javafx.scene.input.MouseEvent event) {
+        try {
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/com/gereja/chatbot/fxml/AdminLogin.fxml")
+            );
+            Scene scene = new Scene(loader.load(), 900, 600);
+            scene.getStylesheets().add(Objects.requireNonNull(
+                    getClass().getResource("/com/gereja/chatbot/css/styles.css")).toExternalForm());
+            stage.setScene(scene);
+            stage.show();
+        } catch (Exception e) {
+            System.err.println("[ChatbotController] Gagal membuka Admin Login: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
     // ── Setting sub-menu handlers ─────────────────────────────
 
     @FXML private void handleSettingBahasa() {
-        appendBotMessage(ChatMessage.botMessage(
-                "🌐 Pengaturan Bahasa\n\n" +
-                        "Saat ini Faith Buddy tersedia dalam Bahasa Indonesia.\n" +
-                        "Dukungan bahasa tambahan sedang dalam pengembangan.\n\n" +
-                        "Untuk saran bahasa lain, silakan hubungi sekretariat gereja."
-        ));
-    }
-
-    @FXML private void handleSettingNotifikasi() {
-        appendBotMessage(ChatMessage.botMessage(
-                "🔔 Pengaturan Notifikasi\n\n" +
-                        "Notifikasi aktif untuk:\n" +
-                        "• 📅 Jadwal kegiatan gereja\n" +
-                        "• ⏰ Deadline pendaftaran layanan\n" +
-                        "• 📢 Pengumuman dari majelis\n\n" +
-                        "Untuk mengubah preferensi notifikasi, hubungi administrator gereja."
-        ));
-    }
-
-    @FXML private void handleSettingTampilan() {
-        appendBotMessage(ChatMessage.botMessage(
-                "🎨 Pengaturan Tampilan\n\n" +
-                        "Tema saat ini: Hijau Gereja (Default)\n\n" +
-                        "Fitur kustomisasi tema akan tersedia pada pembaruan berikutnya. " +
-                        "Terima kasih atas kesabaran Anda! 🙏"
-        ));
-    }
-
-    @FXML private void handleHapusRiwayat() {
-        DatabaseHelper.hapusRiwayat();
-        appendBotMessage(ChatMessage.botMessage(
-                "🗑️ Riwayat chat telah berhasil dihapus.\n\n" +
-                        "Semua percakapan sebelumnya telah dihapus dari sistem."
-        ));
-    }
-
-    @FXML private void handleSettingBantuan() {
-        addUserMessage("❓ Bantuan / FAQ");
         showTypingThenRespond(chatbotService.processInput("bantuan"));
     }
 
@@ -467,11 +482,11 @@ public class ChatbotController implements Initializable {
                         "Untuk bantuan langsung, Anda dapat:\n" +
                         "• 📞 Hubungi sekretariat: (0274) 512-345\n" +
                         "• 💬 WhatsApp: +62 811-2800-345\n" +
-                        "• 📧 Email: sekretariat@gkjngupasan.org\n\n" +
-                        "Atau coba tanyakan salah satu topik berikut:\n" +
-                        "• Syarat baptis / sidi / pernikahan\n" +
-                        "• Jadwal ibadah\n" +
-                        "• Kontak gereja";
+                        "• 📧 Email: sekretariat@gkjngupasan.org\n\n" ;
+//                        "Atau coba tanyakan salah satu topik berikut:\n" +
+//                        "• Syarat baptis / sidi / pernikahan\n" +
+//                        "• Jadwal ibadah\n" +
+//                        "• Kontak gereja";
 
         return List.of(ChatMessage.botMessage(fallback));
     }
