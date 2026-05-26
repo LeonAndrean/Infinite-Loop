@@ -29,17 +29,38 @@ public class ChatbotService {
     private static final List<String> KW_IBADAH    = List.of("ibadah minggu","kebaktian","jam ibadah","ibadah anak","ibadah pemuda","kebaktian minggu");
     private static final List<String> KW_PROFIL    =  List.of("tentang gereja","gereja ini","gkj","faith buddy","apa itu");
     private static final List<String> KW_TEMA =
-            List.of("tema", "tema ibadah", "topik ibadah");
+            List.of(
+                    "tema",
+                    "tema ibadah",
+                    "topik ibadah",
+                    "temanya"
+            );
 
     private static final List<String> KW_AYAT =
-            List.of("ayat", "ayat alkitab", "firman tuhan");
+            List.of(
+                    "ayat",
+                    "ayatnya",
+                    "ayat alkitab",
+                    "firman tuhan"
+            );
 
     private static final List<String> KW_RENUNGAN =
             List.of("renungan", "renungan minggu");
 
     private static final List<String> KW_WAKTU_IBADAH =
             List.of("jadwal ibadah", "jam ibadah", "waktu ibadah");
-    private static final List<String> KW_PENDETA   = List.of("pendeta", "siapa pendeta", "pelayan firman", "pdt");
+    private static final List<String> KW_PENDETA =
+            List.of(
+                    "pendeta",
+                    "siapa pendeta",
+                    "pelayan firman",
+                    "pemimpin",
+                    "pimpin",
+                    "memimpin",
+                    "siapa yang pimpin",
+                    "siapa yang memimpin",
+                    "yang memimpin"
+            );
 
     public enum State { AWAL, BAPTIS, NIKAH, SIDI, KONSELING, JADWAL }
     private State state = State.AWAL;
@@ -57,6 +78,7 @@ public class ChatbotService {
         String lower = input.toLowerCase().trim();
 
         DatabaseHelper.simpanChat("USER", input.trim());
+
 
         // ── 1. DETEKSI MULTI-INTENT ──
         List<String> matchedParts = new ArrayList<>();
@@ -131,19 +153,92 @@ public class ChatbotService {
 
         // Jika terdeteksi MULTI-INTENT (2 atau lebih pertanyaan sekaligus)
         if (matchedParts.size() >= 2) {
+
             StringBuilder combined = new StringBuilder();
+
             for (int i = 0; i < matchedParts.size(); i++) {
+
                 combined.append(matchedParts.get(i));
+
                 if (i < matchedParts.size() - 1) {
-//                    combined.append("\n\n═════════════════════════════\n\n");
+                    combined.append("\n\n");
                 }
             }
-//            ChatMessage respons = ChatMessage.botMessage(combined.toString());
-//            DatabaseHelper.simpanChat("BOT", respons.getContent());
-//            return List.of(respons);
+
+            ChatMessage respons =
+                    ChatMessage.botMessage(combined.toString());
+
+            DatabaseHelper.simpanChat("BOT", respons.getContent());
+
+            return List.of(respons);
         }
 
         // ── 2. LOGIKA SINGLE-INTENT STANDARD (FALLBACK) ──
+        // ===== CONTEXT FOLLOW-UP IBADAH =====
+
+        if (lastIbadahData != null) {
+
+            boolean askTema =
+                    containsAny(lower, KW_TEMA);
+
+            boolean askAyat =
+                    containsAny(lower, KW_AYAT);
+
+            boolean askPendeta =
+                    containsAny(lower, KW_PENDETA);
+
+            boolean askRenungan =
+                    containsAny(lower, KW_RENUNGAN);
+
+            boolean askJadwal =
+                    containsAny(lower, KW_WAKTU_IBADAH);
+
+            if (askTema || askAyat || askPendeta
+                    || askRenungan || askJadwal) {
+
+                StringBuilder sb = new StringBuilder();
+
+                if (askPendeta) {
+                    sb.append("👤 Pelayan Firman:\n")
+                            .append(lastIbadahData.get("pemimpin"))
+                            .append("\n\n");
+                }
+
+                if (askAyat) {
+                    sb.append("📖 Ayat Alkitab:\n")
+                            .append(lastIbadahData.get("ayat"))
+                            .append("\n\n");
+                }
+
+                if (askTema) {
+                    sb.append("🌟 Tema Ibadah:\n")
+                            .append(lastIbadahData.get("tema"))
+                            .append("\n\n");
+                }
+
+                if (askRenungan) {
+                    sb.append("✍️ Renungan:\n")
+                            .append(lastIbadahData.get("renungan"))
+                            .append("\n\n");
+                }
+
+                if (askJadwal) {
+                    sb.append("📅 Jadwal Ibadah:\n")
+                            .append(lastRequestedIbadahDate.format(FMT_PANJANG))
+                            .append("\n🕖 ")
+                            .append(lastIbadahData.get("jam"))
+                            .append("\n\n");
+                }
+
+                ChatMessage msg =
+                        ChatMessage.botMessage(sb.toString().trim());
+
+                DatabaseHelper.simpanChat("BOT", msg.getContent());
+
+                return List.of(msg);
+            }
+        }
+
         ChatMessage respons;
 
         if (containsAny(lower, KW_SALAM) && !containsAny(lower, KW_JADWAL)
@@ -157,8 +252,23 @@ public class ChatbotService {
         } else if (containsAny(lower, KW_PENDETA)) {
             respons = ChatMessage.botMessage(infoDetailPendeta());
 
-        } else if (containsAny(lower, List.of("ibadah minggu", "ibadah mingguan", "kebaktian minggu", "renungan minggu", "tema ibadah", "renungan ibadah"))) {
-            respons = ChatMessage.botMessage(handleIbadahMingguanQuery(lower));
+        } else if (containsAny(lower, List.of(
+                "ibadah minggu",
+                "ibadah mingguan",
+                "kebaktian minggu",
+                "renungan minggu",
+                "tema ibadah",
+                "renungan ibadah",
+                "jadwal ibadah",
+                "jam ibadah",
+                "waktu ibadah",
+                "minggu depan",
+                "minggu ini"
+        ))) {
+
+            respons = ChatMessage.botMessage(
+                    handleIbadahMingguanQuery(lower)
+            );
 
         } else if (containsAny(lower, KW_PROFIL) || lower.matches(".*\\b(profil|tentang|siapa|sejarah)\\b.*")) {
             String jawabanKK = DatabaseHelper.cariJawabanDariKataKunci(lower);
@@ -166,61 +276,6 @@ public class ChatbotService {
                 respons = ChatMessage.botMessage(jawabanKK);
             } else {
                 respons = infoProfilGereja();
-            }
-            // ===== CONTEXT FOLLOW-UP IBADAH =====
-
-            if (lastIbadahData != null) {
-
-                // siapa pemimpin ibadah?
-                if (lower.contains("pimpin")
-                        || lower.contains("pemimpin")
-                        || lower.contains("pelayan firman")) {
-
-                    return List.of(ChatMessage.botMessage(
-                            "👤 Pelayan Firman Ibadah:\n"
-                                    + lastIbadahData.get("pemimpin")
-                    ));
-                }
-
-                // ayat renungan
-                if (lower.contains("ayat")) {
-
-                    return List.of(ChatMessage.botMessage(
-                            "📖 Ayat Alkitab:\n"
-                                    + lastIbadahData.get("ayat")
-                    ));
-                }
-
-                // tema ibadah
-                if (lower.contains("tema")) {
-
-                    return List.of(ChatMessage.botMessage(
-                            "🌟 Tema Ibadah:\n"
-                                    + lastIbadahData.get("tema")
-                    ));
-                }
-
-                // renungan
-                if (lower.contains("renungan")) {
-
-                    return List.of(ChatMessage.botMessage(
-                            "✍️ Renungan:\n"
-                                    + lastIbadahData.get("renungan")
-                    ));
-                }
-
-                // jadwal
-                if (lower.contains("jam")
-                        || lower.contains("jadwal")
-                        || lower.contains("tanggal")) {
-
-                    return List.of(ChatMessage.botMessage(
-                            "📅 Jadwal Ibadah:\n"
-                                    + lastRequestedIbadahDate.format(FMT_PANJANG)
-                                    + "\n🕖 "
-                                    + lastIbadahData.get("jam")
-                    ));
-                }
             }
 
         } else if (containsAny(lower, KW_IBADAH)) {
@@ -377,10 +432,29 @@ public class ChatbotService {
 
         StringBuilder sb = new StringBuilder();
 
-        // Jika tidak ada keyword spesifik
-        // tampilkan full info default
-        if (!askTema && !askAyat && !askRenungan
-                && !askJadwal && !askPendeta) {
+// Jika user hanya bertanya jadwal ibadah
+        boolean askJadwalOnly =
+                lowerInput.contains("jadwal")
+                        || lowerInput.contains("jam")
+                        || lowerInput.contains("waktu");
+
+        if (askJadwalOnly
+                && !askTema
+                && !askAyat
+                && !askRenungan
+                && !askPendeta) {
+
+            askJadwal = true;
+        }
+
+// Jika user hanya bilang:
+// "ibadah minggu depan"
+// tampilkan full info default
+        else if (!askTema
+                && !askAyat
+                && !askRenungan
+                && !askJadwal
+                && !askPendeta) {
 
             askTema = true;
             askAyat = true;
@@ -715,7 +789,30 @@ public class ChatbotService {
     }
 
     private boolean containsAny(String input, List<String> keywords) {
-        return keywords.stream().anyMatch(input::contains);
+
+        input = input.toLowerCase().trim();
+
+        for (String keyword : keywords) {
+
+            keyword = keyword.toLowerCase().trim();
+
+            // exact contains
+            if (input.contains(keyword)) {
+                return true;
+            }
+
+            // fleksibel: ayat -> ayatnya
+            if (input.contains(keyword + "nya")) {
+                return true;
+            }
+
+            // fleksibel: pimpin -> memimpin
+            if (input.contains("me" + keyword)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private String namaKategori(String kode) {

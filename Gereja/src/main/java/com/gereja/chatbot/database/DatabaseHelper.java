@@ -879,49 +879,50 @@ public class DatabaseHelper {
      * 3. Cari kata per kata dari input yang cocok dengan kata kunci
      */
     public static String cariJawabanDariKataKunci(String inputUser) {
-        if (inputUser == null || inputUser.isBlank()) return null;
+
+        if (inputUser == null || inputUser.isBlank())
+            return null;
+
         String lower = inputUser.toLowerCase().trim();
 
-        try {
-            // Pass 1: exact match atau contains
-            try (Statement st = getConnection().createStatement();
-                 ResultSet rs = st.executeQuery(
-                         "SELECT id, kata_kunci, jawaban FROM kata_kunci_qa ORDER BY hit_count DESC")) {
-                while (rs.next()) {
-                    String kk = rs.getString("kata_kunci").toLowerCase().trim();
-                    if (lower.equals(kk) || lower.contains(kk) || kk.contains(lower)) {
-                        incrementHitCount(rs.getInt("id"));
-                        return rs.getString("jawaban");
-                    }
+        String bestAnswer = null;
+        int bestScore = 0;
+
+        try (Statement st = getConnection().createStatement();
+             ResultSet rs = st.executeQuery(
+                     "SELECT id, kata_kunci, jawaban FROM kata_kunci_qa")) {
+
+            while (rs.next()) {
+
+                String kk = rs.getString("kata_kunci")
+                        .toLowerCase()
+                        .trim();
+
+                String jawaban = rs.getString("jawaban");
+
+                int score = 0;
+
+                // EXACT MATCH
+                if (lower.equals(kk)) {
+                    score = 100;
+                }
+
+                // PHRASE MATCH
+                else if (lower.contains(kk) && kk.length() >= 5) {
+                    score = 80;
+                }
+
+                if (score > bestScore) {
+                    bestScore = score;
+                    bestAnswer = jawaban;
                 }
             }
 
-            // Pass 2: cari berdasarkan token kata per kata (semua kata kunci di DB)
-            try (Statement st = getConnection().createStatement();
-                 ResultSet rs = st.executeQuery(
-                         "SELECT id, kata_kunci, jawaban FROM kata_kunci_qa ORDER BY LENGTH(kata_kunci) DESC")) {
-                String[] inputTokens = lower.split("\\s+");
-                while (rs.next()) {
-                    String kk = rs.getString("kata_kunci").toLowerCase().trim();
-                    String[] kkTokens = kk.split("\\s+");
-                    int matchCount = 0;
-                    for (String kkTok : kkTokens) {
-                        for (String inTok : inputTokens) {
-                            if (inTok.equals(kkTok) || inTok.contains(kkTok) || kkTok.contains(inTok)) {
-                                matchCount++;
-                                break;
-                            }
-                        }
-                    }
-                    // Jika semua token kata kunci cocok
-                    if (matchCount == kkTokens.length && matchCount > 0) {
-                        incrementHitCount(rs.getInt("id"));
-                        return rs.getString("jawaban");
-                    }
-                }
-            }
-        } catch (SQLException e) { System.out.println("[DB] cariJawaban error: " + e.getMessage()); }
-        return null;
+        } catch (SQLException e) {
+            System.out.println("[DB] cariJawaban error: " + e.getMessage());
+        }
+
+        return bestScore >= 80 ? bestAnswer : null;
     }
 
     private static void incrementHitCount(int id) {
@@ -1177,5 +1178,28 @@ public class DatabaseHelper {
         try (Statement st = getConnection().createStatement()) {
             st.execute("DELETE FROM jadwal");
         } catch (SQLException e) { System.out.println("[DB] hapusSemuaJadwal error: " + e.getMessage()); }
+    }
+    public static void tambahVariasiIbadah() {
+
+        String jawaban = """
+        Jadwal Ibadah Minggu:
+
+        07.00 WIB
+        09.30 WIB
+        17.00 WIB
+        """;
+
+        String[] keywords = {
+                "jadwal ibadah",
+                "ibadah minggu",
+                "kebaktian minggu",
+                "jadwal gereja",
+                "ibadah hari minggu",
+                "jadwal minggu depan"
+        };
+
+        for (String k : keywords) {
+            insertKataKunci(k, k, jawaban, "UMUM");
+        }
     }
 }

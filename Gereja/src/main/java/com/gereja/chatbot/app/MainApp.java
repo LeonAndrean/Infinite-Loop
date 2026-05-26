@@ -9,6 +9,8 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import java.util.Objects;
 
+import static com.gereja.chatbot.database.DatabaseHelper.insertKataKunci;
+
 /**
  * MainApp – Entry point aplikasi Faith Buddy.
  *
@@ -79,4 +81,6 @@ public class MainApp extends Application {
     public static void main(String[] args) {
         launch(args);
     }
+
 }
+
