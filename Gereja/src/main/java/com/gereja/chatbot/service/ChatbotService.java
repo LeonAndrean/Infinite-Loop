@@ -796,18 +796,24 @@ public class ChatbotService {
 
             keyword = keyword.toLowerCase().trim();
 
-            // exact contains
+            // 1. Exact contains
             if (input.contains(keyword)) {
                 return true;
             }
 
-            // fleksibel: ayat -> ayatnya
+            // 2. Fleksibel: ayat -> ayatnya
             if (input.contains(keyword + "nya")) {
                 return true;
             }
 
-            // fleksibel: pimpin -> memimpin
+            // 3. Fleksibel: pimpin -> memimpin
             if (input.contains("me" + keyword)) {
+                return true;
+            }
+
+            // 4. Fuzzy match – toleransi typo (Levenshtein Distance)
+            //    Contoh: "jatwal" → "jadwal", "babtis" → "baptis"
+            if (FuzzyMatcher.tokenMatchesKeyword(input, keyword)) {
                 return true;
             }
         }
